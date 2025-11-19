@@ -13,7 +13,7 @@ public class DiscountVoucher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // cột id
+    private Long id; // cột id
 
     @Column(nullable = false, unique = true)
     private String code; // mã voucher

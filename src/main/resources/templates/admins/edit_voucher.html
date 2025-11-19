@@ -60,7 +60,7 @@
                     <!-- Hiển thị thời gian cũ -->
                     <div th:if="${voucher.expiredAt != null}" class="mb-2">
                         <small class="text-muted">
-                            Thời gian hiện tạiaaaaaaaa:
+                            Thời gian hiện tại:
                             <span th:text="${#temporals.format(voucher.expiredAt, 'dd/MM/yyyy HH:mm')}"></span>
                         </small>
                     </div>

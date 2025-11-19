@@ -236,6 +236,8 @@ public class PhoneController {
         model.addAttribute("vouchers", list);
 
         model.addAttribute("idUser", idUser);
+
+        voucherService.deactivateExpiredOrOutOfStockVouchers();
         return "users/index_User"; // Chuyển đến trang index_User.html
     }
 
@@ -287,6 +289,7 @@ public class PhoneController {
         }
 
         model.addAttribute("idUser", idUser);
+        voucherService.deactivateExpiredOrOutOfStockVouchers();
         return "admins/index_Admin"; // Chuyển đến trang index_User.html
     }
 
@@ -604,11 +607,22 @@ public class PhoneController {
             ra.addFlashAttribute("error", "Bạn phải đăng nhập để thu thập voucher.");
             return "redirect:/auth/login";
         }
+        if(voucherId==null)
+        {
+            ra.addFlashAttribute("error", "Thu thập voucher thất bại.");
+            return "redirect:/phones/index_User";
+        }
 
         // ❌ Voucher không tồn tại
         DiscountVoucher voucher = voucherService.getById(voucherId);
         if (voucher == null) {
             ra.addFlashAttribute("error", "Voucher không tồn tại.");
+            return "redirect:/phones/index_User";
+        }
+
+        if(voucherService.isVoucherValidForUse(voucherId)==false)
+        {
+            ra.addFlashAttribute("error", "Voucher đã dừng lại .");
             return "redirect:/phones/index_User";
         }
 
@@ -634,6 +648,25 @@ public class PhoneController {
         if (idUser == null) {
             return "redirect:/auth/login";
         } 
+        Map<String, Object> phoneInfo = phoneService.getPhoneWithPromotionById(id_phone);
+
+        if (phoneInfo == null || phoneInfo.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm!");
+            return "redirect:/phones/index_User";
+        }
+
+        Integer stock = (Integer) phoneInfo.get("StockPhone");
+        if (stock == null || stock <= 0) {
+            redirectAttributes.addFlashAttribute("error", "Sản phẩm hết hàng!");
+            return "redirect:/phones/index_User";
+        }
+
+        // ✅ Lấy trạng thái
+        String status = (String) phoneInfo.get("StatusPhone");
+        if (status != null && status.equalsIgnoreCase("inactive")) {
+            redirectAttributes.addFlashAttribute("error", "Sản phẩm đã ngừng kinh doanh!");
+            return "redirect:/phones/index_User";
+        }
         int idPhone = (int)id_phone;
         cartService.addItemToCart(idUser,idPhone);
         redirectAttributes.addFlashAttribute("success", "Thêm sản phẩm vào giỏ hàng thành công!");

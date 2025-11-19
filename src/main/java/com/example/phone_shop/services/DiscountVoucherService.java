@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DiscountVoucherService {
@@ -37,7 +38,7 @@ public class DiscountVoucherService {
         voucherRepository.deleteById(id);
     }
 
-     // Kiểm tra voucher có hết hạn không
+    // Kiểm tra voucher có hết hạn không
     public boolean isExpired(DiscountVoucher voucher) {
         if (voucher.getExpiredAt() == null) return false;
         return voucher.getExpiredAt().isBefore(LocalDateTime.now());
@@ -80,5 +81,46 @@ public class DiscountVoucherService {
             voucher.setStatus("inactive");
             voucherRepository.save(voucher);
         }
+    }
+
+    public void deactivateExpiredOrOutOfStockVouchers() {
+        // Tìm tất cả các voucher cần được vô hiệu hóa bằng câu query đã viết trong Repository
+        List<DiscountVoucher> vouchersToDeactivate = voucherRepository.findVouchersToDeactivate(LocalDateTime.now());
+
+        // Nếu không có voucher nào thì thoát
+        if (vouchersToDeactivate.isEmpty()) {
+            return;
+        }
+        
+        // Cập nhật trạng thái cho từng voucher tìm được
+        for (DiscountVoucher voucher : vouchersToDeactivate) {
+            voucher.setStatus("inactive");
+        }
+
+        // Lưu tất cả các thay đổi vào cơ sở dữ liệu trong một lần
+        voucherRepository.saveAll(vouchersToDeactivate);
+        
+        // Ghi log để theo dõi (tùy chọn)
+        System.out.println("Đã vô hiệu hóa " + vouchersToDeactivate.size() + " voucher.");
+    }
+
+    public boolean isVoucherValidForUse(Long id) {
+        // Tìm voucher trong CSDL
+        Optional<DiscountVoucher> voucherOptional = voucherRepository.findById(id);
+
+        // Nếu không tìm thấy voucher, trả về false
+        if (!voucherOptional.isPresent()) {
+            return false;
+        }
+
+        DiscountVoucher voucher = voucherOptional.get();
+
+        // Kiểm tra tất cả các điều kiện
+        boolean isActive = !"inactive".equalsIgnoreCase(voucher.getStatus());
+        boolean isNotExpired = voucher.getExpiredAt() == null || voucher.getExpiredAt().isAfter(LocalDateTime.now());
+        boolean isInStock = voucher.getQuantity() == null || voucher.getQuantity() > 0;
+
+        // Voucher chỉ hợp lệ khi tất cả các điều kiện trên đều đúng
+        return isActive && isNotExpired && isInStock;
     }
 }

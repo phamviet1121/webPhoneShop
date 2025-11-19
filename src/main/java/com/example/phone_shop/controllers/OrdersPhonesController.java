@@ -118,7 +118,7 @@ public class OrdersPhonesController {
         Integer idUserInt = idUserLong.intValue();
         List<Map<String, Object>> userVouchersinformation =userVoucherService.getgetUserVouchersDiscount(idUserInt);
         model.addAttribute("userVouchersinformation", userVouchersinformation);
-
+        discountVoucherService.deactivateExpiredOrOutOfStockVouchers();
         return "orders/buy_phonelist"; // View hiển thị mua nhiều điện thoại
     }
 
@@ -127,6 +127,7 @@ public class OrdersPhonesController {
     @GetMapping("/buy/{id}")
     public String orderBuyPhone(@PathVariable Long id, HttpSession session, Model model,
             RedirectAttributes redirectAttributes) {
+                
         Map<String, Object> phoneInfo = phoneService.getPhoneWithPromotionById(id);
 
         if (phoneInfo == null || phoneInfo.isEmpty()) {
@@ -158,7 +159,7 @@ public class OrdersPhonesController {
         Integer idUserInt = idUserLong.intValue();
         List<Map<String, Object>> userVouchersinformation =userVoucherService.getgetUserVouchersDiscount(idUserInt);
         model.addAttribute("userVouchersinformation", userVouchersinformation);
-
+        discountVoucherService.deactivateExpiredOrOutOfStockVouchers();
         return "orders/buy_phone";
     }
 
@@ -200,6 +201,23 @@ public class OrdersPhonesController {
             redirectAttributes.addFlashAttribute("error", "Số lượng không hợp lệ!");
             return "redirect:/orders/buy/" + phoneId;
         }
+        Long idVoucher=null;
+        if(voucherId!=null&&voucherId>0)
+        {
+           UserVoucher UserVoucherId=userVoucherService.getUserVoucherId(idUser,voucherId);
+            if(UserVoucherId!=null)
+            {
+                idVoucher=UserVoucherId.getVoucherId();
+            } 
+        }
+        if(idVoucher!=null)
+        {
+            if(discountVoucherService.isVoucherValidForUse(idVoucher)==false)
+            {
+                redirectAttributes.addFlashAttribute("error", "Voucher không hợp lệ !");
+                return "redirect:/orders/buy/" + phoneId;
+            }
+        }
 
         // === PHẦN LOGIC ĐƯỢC ĐIỀU CHỈNH ĐỂ KHỚP VỚI JAVASCRIPT ===
 
@@ -230,7 +248,6 @@ public class OrdersPhonesController {
         // 4. XỬ LÝ VOUCHER VÀ TÍNH TOÁN GIẢM GIÁ
         double voucherDiscount = 0.0;
         Long validVoucherId = null; // Biến tạm để xác định voucher có hợp lệ và được áp dụng không
-
         if (voucherId != null && voucherId > 0) {
             List<Map<String, Object>> voucherDetailsList = userVoucherService.getgetUserVouchersDiscountProduct(idUser, voucherId);
             if (voucherDetailsList != null && !voucherDetailsList.isEmpty()) {
@@ -301,8 +318,11 @@ public class OrdersPhonesController {
         // 7. ĐÁNH DẤU VOUCHER LÀ ĐÃ SỬ DỤNG
         // Chỉ đánh dấu đã dùng nếu voucher đã được xác thực là hợp lệ
         if (validVoucherId != null) {
-            
             userVoucherService.markVoucherUsed(idUser, validVoucherId);
+        }
+        if(idVoucher!=null)
+        {
+            discountVoucherService.decreaseQuantity(idVoucher);
         }
 
         redirectAttributes.addFlashAttribute("success", "Đặt hàng thành công!");
@@ -353,6 +373,23 @@ public class OrdersPhonesController {
         if(voucherId.length!=0)
         {
             currentVoucherId = (voucherId[i] != null && voucherId[i] > 0) ? voucherId[i] : null;
+        }
+        Long idVoucher=null;
+        if(currentVoucherId!=null)
+        {
+           UserVoucher UserVoucherId=userVoucherService.getUserVoucherId(idUser,currentVoucherId);
+            if(UserVoucherId!=null)
+            {
+                idVoucher=UserVoucherId.getVoucherId();
+            } 
+        }
+        if(idVoucher!=null)
+        {
+            if(discountVoucherService.isVoucherValidForUse(idVoucher)==false)
+            {
+                redirectAttributes.addFlashAttribute("error", "Voucher không hợp lệ !");
+                return "redirect:/phones/index_User";
+            }
         }
         
 
@@ -461,7 +498,10 @@ public class OrdersPhonesController {
         // 7. ĐÁNH DẤU VOUCHER LÀ ĐÃ SỬ DỤNG
         if (validVoucherId != null) {
             userVoucherService.markVoucherUsed(idUser, validVoucherId);
-            // discountVoucherService.decreaseQuantity(validVoucherId);
+        }
+        if(idVoucher!=null)
+        {
+            discountVoucherService.decreaseQuantity(idVoucher);
         }
         // 8 - XÓA SẢN PHẨM KHỎI GIỎ HÀNG
         try {
@@ -519,7 +559,7 @@ public class OrdersPhonesController {
 
         List<Map<String, Object>> userVouchersinformation =userVoucherService.getgetUserVouchersDiscount(userId);
         model.addAttribute("userVouchersinformation", userVouchersinformation);
-
+        discountVoucherService.deactivateExpiredOrOutOfStockVouchers();
         return "orders/carts_list_user"; // Trả về trang Thymeleaf "orders_list_user.html"
     }
 

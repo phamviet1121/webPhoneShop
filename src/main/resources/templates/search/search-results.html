@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kết quả tìm kiếm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/product-card.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(showLoginButton=true, extraNavItems=~{bits/nav-items :: backAndSearch})}"></div>
+    <div th:replace="~{fragments/carousel :: imageCarousel}"></div>
+<div class="container mt-5">
+
+    <!-- <h3 class="text-primary fw-bold">Kết quả tìm kiếm cho:
+        <span th:text="${searchKeyword}"></span>
+    </h3>
+
+    <p class="text-muted" th:if="${resultCount > 0}">
+        Tìm thấy <strong th:text="${resultCount}"></strong> sản phẩm.
+    </p> -->
+
+    <p class="text-danger" th:if="${message != null}" th:text="${message}"></p>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="product-container">
+        <div class="product-card" th:each="p : ${phonesData}"
+             th:attr="data-name=${p['NamePhoneId']}, data-price=${p['FinalPrice'] != null ? p['FinalPrice'] : p['PricePhone']}, data-brand=${p['BrandPhoneId']?.toLowerCase()}">
+
+            <!-- Ảnh sản phẩm -->
+            <div class="product-image">
+                <img th:src="${p['ImageUrlPhoneId'] != null ? p['ImageUrlPhoneId'] : 'https://via.placeholder.com/180'}"
+                     alt="Ảnh điện thoại">
+            </div>
+
+            <!-- Thông tin sản phẩm -->
+            <div class="product-info">
+                <div class="product-name" th:text="${p['NamePhoneId']}"></div>
+
+                <div class="product-meta">
+                    <span th:text="${p['BrandPhoneId']}"></span>
+
+                    <div style="display: inline-block;">
+                        <!-- Không khuyến mãi -->
+                        <div th:if="${p['DiscountPhone'] == null or p['DiscountPhone'] == 0}">
+                            <span th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                        </div>
+
+                        <!-- Đang khuyến mãi -->
+                        <div th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0 and p['StatusDiscountPhone'] == 'active'}"
+                             class="discount-price-sale">
+                            <div class="final-price"
+                                 th:text="${#numbers.formatInteger(p['FinalPrice'], 0, 'COMMA')} + ' VNĐ'"></div>
+                            <div class="old-price">
+                                <span class="price-strike"
+                                      th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                                <span class="discount-percent"
+                                      th:text="'-' + ${p['DiscountPhone']} + '%'"></span>
+                            </div>
+                        </div>
+
+                        <!-- Sắp khuyến mãi -->
+                        <div th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0 and p['StatusDiscountPhone'] == 'upcoming'}"
+                             class="discount-price-upcoming">
+                            <div class="upcoming-final-price badge bg-warning text-dark">
+                                <span th:text="${#numbers.formatInteger(p['PricePhone'] * (100 - p['DiscountPhone']) / 100, 0, 'COMMA')} + ' VNĐ'"></span>
+                            </div>
+                            <div class="upcoming-original-line">
+                                <span class="upcoming-original-price"
+                                      th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                                <span class="upcoming-discount-percent"
+                                      th:text="'-' + ${p['DiscountPhone']} + '%'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-status">
+                    <div th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0}">
+                        <span th:text="${p['StatusPhone']}"></span> |
+                        SL: <span th:text="${p['StockPhone']}"></span> /
+                        <span th:text="${p['QuantityPhone']}"></span>
+                    </div>
+                    <div th:if="${p['DiscountPhone'] == null or p['DiscountPhone'] == 0}">
+                        <span th:text="${p['StatusPhone']}"></span> |
+                        SL: <span th:text="${p['StockPhone']}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút hành động -->
+            <div class="action-buttons">
+               <a th:href="@{/phones/detail/{id}(id=${p['PhoneId']})}"
+                    class="btn btn-outline-primary btn-sm">
+                    Thông tin
+                </a>
+                 
+                <a 
+                 th:href="@{/auth/login}" 
+                   class="btn btn-outline-primary btn-sm"
+                   onmouseover="this.style.backgroundColor='#ffc107'; this.style.borderColor='#ffc107'; this.style.color='#000';"
+                   onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#0d6efd'; this.style.color='#0d6efd';">
+                    Đăng nhập để mua
+                </a> 
+            </div>
+        </div>
+    </div>
+  
+</div>
+   <!-- PHẦN 8: Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

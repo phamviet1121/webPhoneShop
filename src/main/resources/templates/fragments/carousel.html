@@ -1,0 +1,195 @@
+<!-- src/main/resources/templates/fragments/carousel.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <!-- ================================================================== -->
+    <!-- FRAGMENT 1: Header Carousel (Sử dụng ID: #headerCarousel)          -->
+    <!-- ================================================================== -->
+    <!-- 
+      - Fragment này định nghĩa carousel chính cho phần đầu trang.
+      - Nó liên kết đến file /css/carousel.css.
+      - Mọi tùy chỉnh cho carousel này được điều khiển bởi các quy tắc CSS 
+        bắt đầu bằng #headerCarousel trong file CSS.
+    -->
+    <th:block th:fragment="imageCarousel">
+        <!-- Liên kết tới file CSS chung -->
+        <link rel="stylesheet" th:href="@{/css/carousel.css}">
+
+        <!-- Cấu trúc Carousel 1 -->
+        <div id="headerCarousel" class="carousel slide" data-bs-ride="carousel">
+            
+            <!-- Các dấu chấm chỉ báo (Indicators) -->
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#headerCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#headerCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#headerCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+
+            <!-- Nội dung các slide ảnh -->
+            <div class="carousel-inner">
+                <!-- Slide 1 -->
+                <div class="carousel-item active">
+                    <img th:src="@{/img/22.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Sản phẩm nổi bật</h5>
+                        <p>Khám phá ngay các mẫu điện thoại mới nhất.</p>
+                    </div>
+                </div>
+                <!-- Slide 2 -->
+                <div class="carousel-item">
+                    <img th:src="@{/img/11.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Khuyến mãi đặc biệt</h5>
+                        <p>Giảm giá cực sốc cho các dòng sản phẩm cao cấp.</p>
+                    </div>
+                </div>
+                <!-- Slide 3 -->
+                <div class="carousel-item">
+                    <img th:src="@{/img/33.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Miễn phí vận chuyển</h5>
+                        <p>Áp dụng cho mọi đơn hàng trên toàn quốc.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Các nút điều khiển Trái/Phải (Controls) -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#headerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#headerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </th:block>
+
+
+
+    <!-- ================================================================== -->
+    <!-- FRAGMENT 2: Promotion Carousel (Sử dụng ID: #promoCarousel)        -->
+    <!-- ================================================================== -->
+    <!-- 
+      - Fragment này định nghĩa carousel thứ hai, dành cho khuyến mãi.
+      - Nó cũng liên kết đến file /css/carousel.css.
+      - Mọi tùy chỉnh cho carousel này được điều khiển bởi các quy tắc CSS 
+        bắt đầu bằng #promoCarousel trong file CSS.
+    -->
+    <th:block th:fragment="imageCarousel_1">
+        <!-- Liên kết tới file CSS chung -->
+        <link rel="stylesheet" th:href="@{/css/carousel.css}">
+
+        <!-- Cấu trúc Carousel 2 -->
+        <div id="promoCarousel" class="carousel slide" data-bs-ride="carousel">
+            
+            <!-- Các dấu chấm chỉ báo (Indicators) -->
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+
+            <!-- Nội dung các slide ảnh -->
+            <div class="carousel-inner">
+                <!-- Slide 1 -->
+                <div class="carousel-item active">
+                    <img th:src="@{/img/6.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 4">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Sản phẩm nổi bật</h5>
+                        <p>Khám phá ngay các mẫu điện thoại mới nhất.</p>
+                    </div>
+                </div>
+                <!-- Slide 2 -->
+                <div class="carousel-item">
+                    <img th:src="@{/img/4.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 5">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Khuyến mãi đặc biệt</h5>
+                        <p>Giảm giá cực sốc cho các dòng sản phẩm cao cấp.</p>
+                    </div>
+                </div>
+                <!-- Slide 3 -->
+                <div class="carousel-item">
+                    <img th:src="@{/img/5.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 6">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Miễn phí trả góp 0%</h5>
+                        <p>Áp dụng cho mọi đơn hàng trên toàn quốc.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Các nút điều khiển Trái/Phải (Controls) -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#promoCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#promoCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </th:block>
+
+    <!-- ================================================================== -->
+    <!-- FRAGMENT 3:      -->
+    <!-- ================================================================== -->
+
+   <th:block th:fragment="imageCarousel_future">
+    <!-- Liên kết tới file CSS chung -->
+    <link rel="stylesheet" th:href="@{/css/carousel.css}">
+
+    <!-- Cấu trúc Carousel cho sản phẩm sắp được khuyến mãi -->
+    <div id="futurePromoCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+        
+        <!-- Các dấu chấm chỉ báo (Indicators) -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#futurePromoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#futurePromoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#futurePromoCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+
+        <!-- Nội dung các slide ảnh -->
+        <div class="carousel-inner">
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+                <img th:src="@{/img/7.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 1"style="height: 200px; object-fit: cover;">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Sắp khuyến mãi lớn</h5>
+                    <p>Chuẩn bị săn ưu đãi cực hấp dẫn trong thời gian tới.</p>
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="carousel-item">
+                <img th:src="@{/img/8.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 2"style="height: 200px; object-fit: cover;">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Sản phẩm hot sắp giảm giá</h5>
+                    <p>Đừng bỏ lỡ cơ hội sở hữu smartphone cao cấp với giá ưu đãi.</p>
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="carousel-item">
+                <img th:src="@{/img/9.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 3"style="height: 200px; object-fit: cover;">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Chỉ còn ít ngày nữa!</h5>
+                    <p>Các chương trình ưu đãi sắp được bật mí, hãy cùng chờ đón.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Các nút điều khiển Trái/Phải (Controls) -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#futurePromoCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#futurePromoCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</th:block>
+
+
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+/* ====================================================== */
+/*          CSS CHO SIDEBAR VÀ CÁC NÚT ĐIỀU KHIỂN          */
+/* ====================================================== */
+
+/* --- NÚT MỞ SIDEBAR --- */
+#openSidebarBtn {
+    position: fixed;        /* Giữ cố định khi cuộn */
+    left: 0;                /* Sát rìa trái */
+    top: 50%;               /* Ở giữa theo chiều dọc */
+    transform: translateY(-50%); /* Căn giữa nút chính xác */
+    z-index: 999;           /* Nổi lên trên, nhưng dưới sidebar */
+    background-color: #86b7fe;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 12px 1px;
+    border-top-right-radius: 8px;   /* Bo góc bên phải */
+    border-bottom-right-radius: 8px;
+    font-size: 20px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
+}
+
+#openSidebarBtn:hover {
+    background-color: #0056b3;
+}
+
+/* --- SIDEBAR CHÍNH --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px; /* Ẩn ra ngoài màn hình theo mặc định */
+    width: 280px;
+    height: 100%;
+    background-color: #343a40; /* Màu nền tối */
+    color: #fff;
+    transition: left 0.3s ease-in-out; /* Hiệu ứng trượt */
+    z-index: 1050; /* Z-index cao nhất để nổi trên mọi thứ */
+    padding: 15px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+    overflow-y: auto; /* Thêm thanh cuộn nếu nội dung dài */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Trạng thái khi sidebar được mở */
+.sidebar.open {
+    left: 0;
+}
+
+/* --- PHẦN HEADER CỦA SIDEBAR --- */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #495057;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.sidebar-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #ffc107; /* Màu vàng đặc trưng */
+}
+
+/* --- NÚT ĐÓNG SIDEBAR --- */
+.close-btn {
+    background: none;
+    border: none;
+    color: #adb5bd;
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 5px;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.close-btn:hover {
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+/* --- NỘI DUNG BÊN TRONG SIDEBAR --- */
+.sidebar-content {
+    flex-grow: 1; /* Đẩy phần link đăng xuất xuống dưới */
+}
+
+.sidebar-content p {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: #ced4da;
+}
+.sidebar-content p strong {
+    color: #fff;
+}
+
+.sidebar-link {
+    display: block;
+    color: #ffc107;
+    text-decoration: none;
+    padding: 10px 5px;
+    margin: 5px 0;
+    font-size: 15px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover {
+    background-color: #495057;
+    color: #fff;
+}
+
+.logout-link {
+    margin-top: auto; /* Đẩy link này xuống cuối cùng */
+    color: #dc3545; /* Màu đỏ cảnh báo */
+}
+
+.logout-link:hover {
+    background-color: #dc3545;
+    color: #fff;
+}

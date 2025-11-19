@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <!-- ====================================================== -->
+    <!-- FRAGMENT: Footer                                       -->
+    <!-- ====================================================== -->
+    <th:block th:fragment="footer">
+        <!-- Link tới file CSS riêng cho footer -->
+        <link rel="stylesheet" th:href="@{/css/footer.css}">
+        <!-- Link tới thư viện icon của Bootstrap (cần cho các icon địa chỉ, điện thoại...) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row">
+                    <!-- Cột 1: Giới thiệu và Logo -->
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                        <h5 class="footer-heading">PhoneStore</h5>
+                        <p class="footer-text">
+                            Cửa hàng chuyên cung cấp các sản phẩm điện thoại thông minh chính hãng 
+                            với mức giá tốt nhất, đi kèm dịch vụ hậu mãi và chăm sóc khách hàng tận tâm.
+                        </p>
+                    </div>
+
+                    <!-- Cột 2: Liên kết hữu ích -->
+                    <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                        <h5 class="footer-heading">Hỗ trợ</h5>
+                        <ul class="list-unstyled footer-links">
+                            <li><a th:href="@{/about}">Giới thiệu</a></li>
+                            <li><a th:href="@{/contact}">Liên hệ</a></li>
+                            <li><a th:href="@{/policy}">Chính sách bảo hành</a></li>
+                            <li><a th:href="@{/faq}">Câu hỏi thường gặp</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Cột 3: Thông tin liên hệ -->
+                    <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                        <h5 class="footer-heading">Liên hệ</h5>
+                        <ul class="list-unstyled footer-contact">
+                            <li>
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span>123 Đường ABC, Quận 1, TP. Hồ Chí Minh</span>
+                            </li>
+                            <li>
+                                <i class="bi bi-telephone-fill"></i>
+                                <span>(028) 3812 3456</span>
+                            </li>
+                            <li>
+                                <i class="bi bi-envelope-fill"></i>
+                                <span>support@phonestore.com</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Cột 4: Mạng xã hội -->
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="footer-heading">Theo dõi chúng tôi</h5>
+                        <div class="footer-social">
+                            <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="social-icon"><i class="bi bi-tiktok"></i></a>
+                            <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="footer-divider">
+                <div class="text-center footer-copyright">
+                    <p>&copy; 2025 PhoneStore. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </th:block>
+
+</body>
+</html>

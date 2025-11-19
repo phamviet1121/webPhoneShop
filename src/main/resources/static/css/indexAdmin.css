@@ -1,0 +1,130 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+h2 {
+    margin-top: 30px;
+    text-align: center;
+}
+
+table {
+    width: 90%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #007bff;
+    color: white;
+}
+
+table + h2 {
+    margin-top: 50px;
+}
+
+table.table-bordered {
+    border-spacing: 0 15px;
+    margin-bottom: 50px;
+}
+
+table.table-bordered tbody tr {
+    display: table-row;
+}
+
+table.table-bordered td, table.table-bordered th {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+table.table-bordered td:last-child {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.action-buttons a, .btn {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+    border: 1px solid transparent;
+    text-align: center;
+}
+
+.edit-btn, .btn-warning {
+    background-color: #ffc107;
+    color: black;
+    border: 1px solid #ffc107;
+}
+
+.edit-btn:hover, .btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.delete-btn, .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: 1px solid #dc3545;
+}
+
+.delete-btn:hover, .btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-primary {
+    background-color: #49fa5e;
+    border-color: #b64545;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-info {
+    background-color: #ffbcab;
+    border-color: #17a2b8;
+}
+.btn-info:hover {
+    background-color: #138496;
+}
+
+.phone-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+}
+/* .phone-img {
+    width: 100px; 
+    height: 100px; 
+    object-fit: contain; 
+    background-color: #f8f9fa; 
+    border: 1px solid #ddd; 
+    border-radius: 5px; 
+} */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}

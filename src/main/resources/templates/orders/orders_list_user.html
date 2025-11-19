@@ -1,0 +1,399 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách đơn hàng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        /* Top Menu Bar */
+        .top-menu {
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .menu-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .menu-nav {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-btn {
+            background: transparent;
+            color: #667eea;
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 0 0 auto;
+            text-align: center;
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            border-color: transparent;
+        }
+
+        .menu-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Style for anchor tags that look like buttons */
+        a.menu-btn {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .container-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .customer-info, .orders-list {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .customer-info h2, .orders-list h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .customer-info p {
+            margin-bottom: 15px;
+            color: #333333;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .customer-info p strong {
+            color: #764ba2;
+            display: inline-block;
+            width: 120px;
+            font-weight: 600;
+        }
+
+        .edit-link-btn {
+            display: inline-block;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .edit-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .table thead th {
+            color: #ffffff;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        .table tbody td {
+            padding: 20px 15px;
+            color: #333333;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .table tbody td img {
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+            height: 80px;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-block;
+            margin: 3px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #ffffff;
+        }
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #ffffff;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-ordered { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-rejected, .status-canceled { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 968px) {
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        @media (max-width: 768px) {
+            .menu-nav { flex-wrap: wrap; justify-content: flex-start; gap: 8px; }
+            .menu-btn, a.menu-btn { padding: 10px 18px; font-size: 13px; }
+            .back-btn { padding: 10px 18px; font-size: 13px; }
+            .table { font-size: 12px; }
+            .table thead th, .table tbody td { padding: 12px 8px; }
+            .btn { padding: 6px 12px; font-size: 11px; }
+            .customer-info, .orders-list { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+<!-- Top Menu Bar -->
+<header class="top-menu">
+    <nav class="menu-container">
+        <div class="menu-nav">
+            <button class="menu-btn active" id="menu-orders" onclick="switchTab('orders')">
+                <span>Danh sách đơn hàng</span>
+            </button>
+            <button class="menu-btn" id="menu-customer" onclick="switchTab('customer')">
+                <span>Thông tin khách hàng</span>
+            </button>
+            <a th:href="@{/auth/edit_user_order/{id}(id=${user.idUser})}" class="menu-btn" id="menu-edit">
+                <span>Sửa thông tin</span>
+            </a>
+        </div>
+        <a href="/phones/index_User" class="back-btn" id="back-button">
+            ← <span>Quay lại</span>
+        </a>
+    </nav>
+</header>
+
+<main class="container-wrapper">
+    <!-- Danh sách đơn hàng Section -->
+    <section class="content-section active" id="section-orders">
+        <div class="orders-list">
+            <h2>Danh sách đơn hàng</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Ảnh</th>
+                        <th>Tên Điện thoại</th>
+                        <th>Số lượng</th>
+                        <th>Giá</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="orderDetail, stat : ${orderDetails}">
+                        <td th:text="${stat.index + 1}"></td>
+                        <td><img th:src="${orderDetail.imageUrl}" alt="Ảnh điện thoại" width="100"></td>
+                        <td th:text="${orderDetail.name}"></td>
+                        <td th:text="${orderDetail.quantity}"></td>
+                        <td th:text="${#numbers.formatInteger(orderDetail.price, 0, 'COMMA')+ ' VN₫'}"></td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${'status-' + #strings.toLowerCase(#strings.trim(orderDetail.status))}"
+                                  th:text="${#strings.trim(orderDetail.status)}">
+                            </span>
+                        </td>
+                        <td>
+                            <!-- Nếu trạng thái là REJECTED hoặc CANCELED: chỉ hiển thị nút XÓA -->
+                            <a th:if="${#strings.trim(orderDetail.status) == 'REJECTED' or #strings.trim(orderDetail.status) == 'CANCELED'}"
+                               th:href="@{/orders/delete/{id}(id=${orderDetail.Id})}"
+                               class="btn btn-danger">Xóa</a>
+
+                            <!-- Nếu trạng thái là ORDERED: hiển thị HỦY -->
+                            <div th:if="${#strings.trim(orderDetail.status) == 'ORDERED'}">
+                                <a th:href="@{/orders/cancel/{id}(id=${orderDetail.Id})}"
+                                   class="btn btn-warning">Hủy</a>
+                            </div>
+
+                            <!-- Nếu trạng thái là SUCCESS: hiển thị ĐÁNH GIÁ và XÓA -->
+                            <div th:if="${#strings.trim(orderDetail.status) == 'SUCCESS'}">
+                                <a th:if="${orderDetail.isReviewed == false}"
+                                   th:href="@{/orders/revieworder/{id}(id=${orderDetail.Id})}"
+                                   class="btn btn-warning">Đánh giá</a>
+                                <a th:href="@{/orders/delete/{id}(id=${orderDetail.Id})}"
+                                   class="btn btn-danger">Xóa</a>
+                            </div>
+
+                            <!-- Nếu trạng thái là CONFIRMED -->
+                            <div th:if="${#strings.trim(orderDetail.status) == 'CONFIRMED'}">
+                                <span style="color: #0c5460; font-weight: 600;">Đã xác nhận</span>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Thông tin khách hàng Section -->
+    <section class="content-section" id="section-customer">
+        <div class="customer-info">
+            <h2>Thông tin khách hàng</h2>
+            <p><strong>Tên:</strong> <span th:text="${user.nameUser}"></span></p>
+            <p><strong>Email:</strong> <span th:text="${user.gmailUser}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${user.phoneNumber}"></span></p>
+            <p><strong>Địa chỉ:</strong> <span th:text="${user.address}"></span></p>
+            <a th:href="@{/auth/edit_user_order/{id}(id=${user.idUser})}" class="edit-link-btn">
+                📝 Sửa thông tin
+            </a>
+        </div>
+    </section>
+</main>
+
+<script>
+    function switchTab(tabName) {
+        // Remove active class from all menu buttons that are actual buttons
+        document.querySelectorAll('button.menu-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Hide all content sections
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+
+        // Activate selected tab if it exists
+        const menuButton = document.getElementById('menu-' + tabName);
+        const contentSection = document.getElementById('section-' + tabName);
+
+        if (menuButton && contentSection) {
+            menuButton.classList.add('active');
+            contentSection.classList.add('active');
+        }
+    }
+</script>
+
+</body>
+</html>

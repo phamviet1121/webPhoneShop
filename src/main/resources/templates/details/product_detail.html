@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thông tin chi tiết sản phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Sử dụng CSS từ mẫu mới -->
+    <link rel="stylesheet" type="text/css" th:href="@{/css/detail_user.css}"> 
+    <style>
+        /* Các style CSS từ mẫu mới được giữ lại */
+        body {
+            background-color: #f4f6f8;
+            font-family: "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden; /* Thêm dòng này để ngăn thanh cuộn ngang */
+        }
+        .main-content {
+            padding: 40px 30px;
+        }
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+            background: #ffffff;
+            margin-bottom: 30px;
+        }
+        .product-image { text-align: center; padding: 30px; }
+        .product-image img { max-width: 100%; max-height: 400px; border-radius: 12px; }
+        .product-title { font-size: 2rem; font-weight: 700; color: #2563eb; margin-bottom: 20px; }
+        .price-container { display: flex; align-items: center; gap: 15px; margin: 20px 0; }
+        .stock-status { font-weight: 600; color: #10b981; }
+        .btn { padding: 12px 28px; border-radius: 10px; font-weight: 600; border: none; }
+        .btn-warning { background-color: #ffc107; color: #000; } /* Thêm style cho nút Đăng nhập */
+        .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+        .description-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; margin-top: 30px; }
+        .description-box h5 { color: #1f2937; font-weight: 700; font-size: 1.3rem; }
+        .description-box p, .description-box ul { color: #4b5563; }
+        .rating-distribution { width: 100%; max-width: 600px; }
+        .rating-label { min-width: 50px; font-weight: 600; color: #4b5563; }
+        .rating-distribution .progress { flex: 1; height: 10px; background-color: #e5e7eb; border-radius: 8px; }
+        .rating-distribution .progress-bar { background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%); }
+        .rating-percent { min-width: 50px; text-align: right; font-weight: 600; color: #4b5563; }
+    </style>
+</head>
+<body class="bg-light">
+    
+    <!-- Header được lấy từ logic của file cũ (dành cho khách) -->
+    <div th:replace="~{fragments/header :: header(showLoginButton=false, extraNavItems=~{bits/nav-items :: searchBar})}"></div>
+
+    <!-- Nội dung chính sử dụng layout của file mới -->
+    <main class="main-content">
+        <!-- Product Card -->
+        <div class="card">
+            <div class="row g-0">
+                <!-- Product Image -->
+                <div class="col-md-5">
+                    <div class="product-image">
+                        <img th:src="${phone.imageUrl}" alt="Ảnh điện thoại">
+                    </div>
+                </div>
+                <!-- Product Info -->
+                <div class="col-md-7">
+                    <div class="card-body p-4 p-md-5">
+                        <!-- Cờ giảm giá góc trên trái - ACTIVE -->
+                        <div th:if="${phoneInfo.DiscountPhone != null and phoneInfo.StatusDiscountPhone == 'active'}" 
+                            class="position-absolute top-0 start-0 bg-danger text-white px-3 py-1 rounded-end mt-2 ms-2 shadow-sm"
+                            style="font-weight: bold; font-size: 1rem;">
+                            -<span th:text="${phoneInfo.DiscountPhone}"></span>%
+                        </div>
+
+                        <!-- Cờ giảm giá góc trên trái - UPCOMING -->
+                        <div th:if="${phoneInfo.DiscountPhone != null and phoneInfo.StatusDiscountPhone == 'upcoming'}" 
+                            class="position-absolute top-0 start-0 bg-warning text-dark px-3 py-1 rounded-end mt-2 ms-2 shadow-sm"
+                            style="font-weight: bold; font-size: 0.9rem;">
+                            -<span th:text="${phoneInfo.DiscountPhone}"></span>% ⏳
+                        </div>
+                        <h2 class="product-title" th:text="${phoneInfo.NamePhoneId}"></h2>
+
+                        <div class="price-container">
+                             <!-- ACTIVE -->
+                            <div th:if="${phoneInfo.DiscountPhone != null and phoneInfo.StatusDiscountPhone == 'active'}">
+                                <span class="text-decoration-line-through text-muted me-2"
+                                    th:text="${#numbers.formatDecimal(phoneInfo.PricePhone, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                                <span class="text-danger fw-bold fs-5"
+                                    th:text="${#numbers.formatDecimal(phoneInfo.FinalPrice, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                            </div>
+
+                            <!-- UPCOMING -->
+                            <div th:if="${phoneInfo.DiscountPhone != null and phoneInfo.StatusDiscountPhone == 'upcoming'}" 
+                                class="position-relative d-inline-block">
+                                <!-- Giá gốc -->
+                                <span class="fw-bold fs-5"
+                                    th:text="${#numbers.formatDecimal(phoneInfo.PricePhone, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+
+                                <!-- Giá sau giảm nhỏ góc trên -->
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+                                    style="font-size: 0.75rem;"
+                                    th:text="${
+                                        phoneInfo.FinalPrice == null 
+                                        ? #numbers.formatDecimal(phoneInfo.FinalPrice, 0, 'COMMA', 0, 'POINT') + ' VND' 
+                                        : #numbers.formatDecimal(phoneInfo.PricePhone - (phoneInfo.DiscountPhone * phoneInfo.PricePhone / 100), 0, 'COMMA', 0, 'POINT') + ' VND'
+                                    }">
+                                </span>
+                            </div>
+
+                            <!-- INACTIVE / không có giảm -->
+                            <div th:if="${phoneInfo.DiscountPhone == null or phoneInfo.StatusDiscountPhone == 'inactive'}">
+                                <span class="fw-bold fs-5"
+                                    th:text="${#numbers.formatDecimal(phoneInfo.PricePhone, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                            </div>
+                        </div>
+
+                        <div class="stock-status">
+                            <p class="mb-2"><strong>Hãng:</strong> <span th:text="${phoneInfo.BrandPhoneId}"></span></p>
+                            <p class="mb-2"><strong>Số lượng còn lại:</strong> <span th:text="${phoneInfo.StockPhone}"></span></p>
+                            <p class="mb-2"><strong>Trạng thái:</strong> <span th:text="${phoneInfo.StatusPhone}"></span></p>
+                        </div>
+                         <div th:if="${phoneInfo.DiscountPhone != null}" class="mb-3 mt-3">
+                            <p class="mb-2"><strong>Thời gian khuyến mãi còn:</strong> <span th:text="${phoneInfo.TimeDiscountphone}"></span></p>
+                            <p class="mb-2"><strong>Trạng thái khuyến mãi:</strong> <span th:text="${phoneInfo.StatusDiscountPhone}"></span></p>
+                        </div>
+                        <hr class="my-4">
+
+                        <!-- Nút hành động được cập nhật từ file cũ (dành cho khách) -->
+                        <div class="d-flex gap-3">
+                            <a th:href="@{/auth/login}" class="btn btn-warning me-2">Đăng nhập để mua</a>
+                            <a href="javascript:void(0)" class="btn btn-secondary"
+                                onclick="if (document.referrer) { window.history.back(); } else { window.location.href='/phones'; }">
+                                ⬅ Quay lại
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description & Details -->
+        <div class="card">
+            <div class="card-body">
+                <div class="description-box">
+                    <h5><i class="bi bi-file-text"></i> Mô tả sản phẩm</h5>
+                    <div th:utext="${phone.description}">
+                        <!-- Nội dung mô tả từ database sẽ được chèn vào đây -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Section -->
+        <div class="card mt-4">
+            <div class="card-body p-4">
+                <div class="review-list">  
+                    <h2><strong>Đánh giá điện thoại </strong><b><span th:text="${phone.name}"></span></b></h2>
+
+                    <div class="d-flex align-items-center mb-3 gap-4 flex-wrap">
+                        <img th:src="${phone.imageUrl}" alt="Ảnh điện thoại" class="img-fluid rounded" style="max-width: 150px; height: auto;">
+                    
+                        <div>
+                            <p class="mb-1 fs-5 fw-semibold text-dark"><strong>Trung bình sao:</strong></p>
+                            <div class="text-warning d-flex align-items-center gap-1 fs-4">
+                                <div>
+                                    <span th:if="${avgRating > 0}" th:each="i : ${#numbers.sequence(1, T(java.lang.Math).floor(avgRating))}"><i class="bi bi-star-fill"></i></span>
+                                    <span th:if="${avgRating < 5}" th:each="i : ${#numbers.sequence(T(java.lang.Math).floor(avgRating) + 1, 5)}"><i class="bi bi-star"></i></span>
+                                </div>
+                                <span class="ms-1 text-dark fs-5">(<span th:text="${#numbers.formatDecimal(avgRating, 1, 1)}"></span>)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="rating-distribution flex-grow-1">
+                            <div th:each="star : ${#numbers.sequence(5, 1)}" class="d-flex align-items-center mb-2">
+                                <div class="rating-label me-2 text-warning fw-bold" th:text="${star} + ' ★'"></div>
+                                <div class="progress flex-grow-1 me-2" style="height: 10px;">
+                                    <div class="progress-bar" role="progressbar" th:style="'width:' + (${ratingPercent[star.intValue()] != null ? ratingPercent[star.intValue()] : 0}) + '%'"></div>
+                                </div>
+                                <div class="rating-percent" th:text="(${ratingPercent[star.intValue()] != null ? #numbers.formatDecimal(ratingPercent[star.intValue()], 1, 1) : '0.0'}) + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    
+                    <div class="card mb-3 shadow-sm p-3" th:each="reviewPhoneDetail : ${reviewPhoneDetails}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p><strong>Tên người dùng:</strong> <span th:text="${reviewPhoneDetail.username}"></span></p>
+                                <p>
+                                    <strong>Rating:</strong>
+                                    <span class="text-warning">
+                                        <span th:each="i : ${#numbers.sequence(1, reviewPhoneDetail.rating)}"><i class="bi bi-star-fill"></i></span>
+                                        <span th:if="${reviewPhoneDetail.rating < 5}" th:each="i : ${#numbers.sequence(reviewPhoneDetail.rating + 1, 5)}"><i class="bi bi-star"></i></span>
+                                        (<span th:text="${reviewPhoneDetail.rating}"></span>)
+                                    </span>
+                                </p>
+                                <p><strong>Comment:</strong> <span th:text="${reviewPhoneDetail.comment}"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- Footer đã được trả lại -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

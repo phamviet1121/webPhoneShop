@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chỉnh sửa điện thoại</title>
+    <link rel="stylesheet" th:href="@{/css/editphones.css}">
+
+</head>
+<body>
+    <h2>Chỉnh sửa thông tin điện thoại</h2>
+
+    <div class="form-container">
+       
+
+        <!-- Khu vực nhập liệu -->
+        <div class="form-section">
+            <form th:action="@{/phones/update}" th:object="${phone}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{imageUrl}" /> <!-- Giữ đường dẫn ảnh cũ -->
+        <!-- Khu vực hình ảnh -->
+                <div class="image-section">
+                    <label>Hình ảnh hiện tại:</label>
+                    <img th:src="@{${phone.imageUrl}}" alt="Hình ảnh điện thoại"/><br/>
+                    <label>Chọn hình ảnh mới (nếu muốn thay đổi):</label>
+                    <input type="file" name="imageFile" accept="image/*"/>
+                </div>
+                <label>Tên:</label>
+                <input type="text" th:field="*{name}" required /><br/>
+
+                <label>Hãng:</label>
+                <input type="text" th:field="*{brand}" required /><br/>
+
+                <label>Giá:</label>
+                <input type="number" th:field="*{price}" required /><br/>
+
+                <label>Số lượng:</label>
+                <input type="number" th:field="*{stock}" required /><br/>
+
+                <label>Mô tả:</label>
+                <textarea th:field="*{description}" rows="4" required></textarea><br/>
+
+                <label>Trạng thái:</label>
+                <select th:field="*{status}" required>
+                    <option value="active" th:selected="${phone.status == 'active'}">Hoạt động</option>
+                    <option value="inactive" th:selected="${phone.status == 'inactive'}">Không hoạt động</option>
+                </select><br/>
+
+                <button type="submit">Cập nhật</button>
+            </form>
+            <a th:href="@{/phones/index_Admin}">Quay lại danh sách</a>
+        </div>
+    </div>
+</body>
+
+</html>

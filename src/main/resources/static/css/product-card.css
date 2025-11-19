@@ -1,0 +1,144 @@
+/* product-card.css (Kiểu dáng cho thẻ sản phẩm thông thường)*/
+
+/* --- Lưới sản phẩm --- */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 sản phẩm mỗi hàng */
+    gap: 40px; /* Giảm gap để giống với discount */
+    justify-items: center; /* Căn các thẻ vào giữa */
+    width: 100%;
+}
+
+/* --- Thẻ sản phẩm --- */
+.product-card {
+    border: 2px solid #ddd; /* Giảm độ dày border */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Căn đều các phần tử bên trong */
+    align-items: center;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    text-align: center;
+    max-width: 320px; /* Thêm max-width */
+    width: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Thêm hiệu ứng chuyển động */
+}
+
+/* Thêm hiệu ứng khi di chuột vào thẻ */
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Hình ảnh */
+.product-image {
+    width: 100%;
+    max-width: 100%;
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px; /* Thêm khoảng cách dưới ảnh */
+}
+
+.product-image img {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Thông tin sản phẩm */
+.product-info {
+    flex: 1; /* Cho phép phần thông tin co giãn */
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.product-name {
+    font-size: clamp(1em, 2vw, 1.4em);
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 8px; /* Thêm khoảng cách dưới tên */
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 1em;
+    color: #555;
+    gap: 10px;
+}
+
+.product-meta span:last-child {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.product-status {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 5px; /* Thêm khoảng cách nhỏ phía trên */
+}
+
+/* --- Các nút hành động --- */
+.action-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: auto; /* Đẩy nút xuống dưới cùng */
+    gap: 10px; /* Sử dụng gap thay cho margin */
+}
+
+.action-buttons a {
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    text-align: center;
+    flex: 1;
+    font-size: 0.9em; /* Chỉnh cỡ chữ cho giống nút discount */
+    /* margin đã được thay bằng gap trong .action-buttons */
+}
+
+/* Màu sắc cho từng nút (giữ nguyên) */
+.information-btn {
+    background-color: rgb(157, 239, 176);
+}
+
+.buy-btn {
+    background-color: rgb(242, 255, 0);
+}
+
+.edit-btn {
+    background-color: #28a745;
+    color: white; /* Thêm màu chữ cho dễ đọc */
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white; /* Thêm màu chữ cho dễ đọc */
+}
+
+/* --- Responsive cho lưới sản phẩm --- */
+@media (max-width: 992px) {
+    .product-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .product-container {
+        grid-template-columns: 1fr;
+    }
+}

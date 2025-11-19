@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm khuyến mãi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+    <h2>Thêm khuyến mãi mới</h2>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/phones/discount/save}" method="post" onsubmit="return validateBeforeSubmit()">
+        
+        <!-- Chọn điện thoại -->
+        <div class="mb-3">
+            <label for="phoneId" class="form-label">Chọn điện thoại</label>
+            <select class="form-select" id="phoneId" name="phoneId" required>
+                <!-- Thêm một option mặc định để hướng dẫn người dùng -->
+                <option value="" disabled selected>-- Vui lòng chọn một điện thoại --</option>
+                <option th:each="phone : ${phones}" 
+                        th:value="${phone.id}" 
+                        th:data-stock="${phone.stock}"
+                        th:data-price="${phone.price}"
+                        th:text="${phone.name + ' - ' 
+                                 + #numbers.formatInteger(phone.price,0,'COMMA') + ' VNĐ' 
+                                 + ' - SL: ' + phone.stock}">
+                </option>
+            </select>
+        </div>
+
+        <!-- % Khuyến mãi -->
+        <div class="mb-3">
+            <label for="discount" class="form-label">Khuyến mãi (%)</label>
+            <input type="number" id="discount" name="discountPercent" min="0" max="100" class="form-control" required>
+        </div>
+
+        <!-- Số lượng áp dụng khuyến mãi -->
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Số lượng áp dụng</label>
+            <input type="number" id="quantity" name="quantity" min="1" class="form-control" required>
+        </div>
+
+        <!-- Giá gốc -->
+        <div class="mb-3">
+            <label class="form-label">Giá gốc</label>
+            <input type="text" id="originalPrice" class="form-control" disabled>
+        </div>
+
+        <!-- Giá sau khuyến mãi -->
+        <div class="mb-3">
+            <label class="form-label">Giá sau khuyến mãi</label>
+            <input type="text" id="finalPrice" class="form-control" disabled>
+        </div>
+
+        <!-- Thời gian bắt đầu -->
+        <div class="mb-3">
+            <label for="startTime" class="form-label">Thời gian bắt đầu</label>
+            <input type="datetime-local" id="startTime" name="startTime" class="form-control" required>
+        </div>
+
+        <!-- Thời gian kết thúc -->
+        <div class="mb-3">
+            <label for="endTime" class="form-label">Thời gian kết thúc</label>
+            <input type="datetime-local" id="endTime" name="endTime" class="form-control" required>
+        </div>
+
+        <!-- Trạng thái khuyến mãi -->
+        <div class="mb-3">
+            <label for="status" class="form-label">Trạng thái</label>
+            <select id="status" name="status" class="form-select" required>
+                <option value="ACTIVE">Đang áp dụng</option>
+                <option value="INACTIVE">Ngừng</option>
+                <!-- UPCOMING có thể được quản lý tự động dựa trên startTime, nhưng vẫn giữ lại -->
+                <option value="UPCOMING">Sắp diễn ra</option>
+            </select>
+        </div>
+
+        <!-- Nút thao tác -->
+        <button type="submit" class="btn btn-primary">Xác nhận</button>
+        <a th:href="@{/phones/index_Admin}" class="btn btn-secondary">Hủy</a>
+    </form>
+
+    <!-- ======================= JAVASCRIPT LOGIC ======================= -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // BƯỚC 1: Lấy danh sách promotions từ model của Spring và chuyển nó thành một đối tượng JavaScript.
+        // Thymeleaf sẽ tự động chuyển đổi List<Promotions> thành một mảng JSON.
+        const promotionsData = /*[[${promotions}]]*/ [];
+
+        // Lấy các element từ DOM
+        const phoneSelect = document.getElementById("phoneId");
+        const discountInput = document.getElementById("discount");
+        const quantityInput = document.getElementById("quantity");
+        const originalPriceInput = document.getElementById("originalPrice");
+        const finalPriceInput = document.getElementById("finalPrice");
+        const startTimeInput = document.getElementById("startTime");
+        const endTimeInput = document.getElementById("endTime");
+        const statusSelect = document.getElementById("status");
+
+        // BƯỚC 2: Gán một sự kiện "change" cho dropdown chọn điện thoại.
+        // Mỗi khi người dùng chọn một điện thoại khác, hàm onPhoneChange sẽ được gọi.
+        phoneSelect.addEventListener("change", onPhoneChange);
+        discountInput.addEventListener("input", updatePrice); // Cập nhật giá khi % thay đổi
+        
+        /**
+         * Hàm chính xử lý logic khi người dùng chọn một điện thoại.
+         */
+        function onPhoneChange() {
+            const selectedPhoneId = parseInt(phoneSelect.value);
+            if (!selectedPhoneId) return;
+
+            // BƯỚC 3: Tìm kiếm trong mảng promotionsData xem có khuyến mãi nào
+            // khớp với ID của điện thoại vừa chọn không.
+            // `p.phone.id` khớp với cấu trúc của class Promotions (có thuộc tính 'phone' là một object Phone).
+            const existingPromotion = promotionsData.find(p => p.phone.id === selectedPhoneId);
+
+            if (existingPromotion) {
+                // BƯỚC 4A: Nếu TÌM THẤY khuyến mãi, điền thông tin vào form.
+                fillFormWithData(existingPromotion);
+            } else {
+                // BƯỚC 4B: Nếu KHÔNG TÌM THẤY, xóa trắng các trường để người dùng nhập mới.
+                clearFormFields();
+            }
+
+            // Cập nhật lại hiển thị giá gốc và giá sau khuyến mãi
+            updatePrice();
+        }
+
+        /**
+         * Điền dữ liệu từ đối tượng promotion tìm được vào các ô input.
+         * @param {object} promotion - Đối tượng khuyến mãi.
+         */
+        function fillFormWithData(promotion) {
+            discountInput.value = promotion.discountPercent || 0;
+            quantityInput.value = promotion.quantity || 1;
+            statusSelect.value = promotion.status ? promotion.status.toUpperCase() : 'INACTIVE';
+            
+            // Xử lý định dạng thời gian:
+            // LocalDateTime từ Java sẽ có dạng "2025-09-21T15:30:00"
+            // Input datetime-local cần dạng "YYYY-MM-DDTHH:mm", nên ta cắt chuỗi
+            startTimeInput.value = promotion.startTime ? promotion.startTime.slice(0, 16) : '';
+            endTimeInput.value = promotion.endTime ? promotion.endTime.slice(0, 16) : '';
+        }
+
+        /**
+         * Xóa dữ liệu trên các trường của form.
+         */
+        function clearFormFields() {
+            discountInput.value = '';
+            quantityInput.value = '';
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+            statusSelect.value = 'ACTIVE'; // Thiết lập một giá trị mặc định
+        }
+
+        /**
+         * Cập nhật giá gốc và giá sau khuyến mãi.
+         */
+        function updatePrice() {
+            const selectedOption = phoneSelect.options[phoneSelect.selectedIndex];
+            // Nếu không có gì được chọn hoặc option mặc định được chọn, không làm gì cả
+            if (!selectedOption || !selectedOption.dataset.price) {
+                 originalPriceInput.value = '';
+                 finalPriceInput.value = '';
+                 return;
+            }
+
+            const originalPrice = parseFloat(selectedOption.dataset.price) || 0;
+            const discount = parseFloat(discountInput.value) || 0;
+            const finalPrice = originalPrice - (discount / 100) * originalPrice;
+
+            originalPriceInput.value = originalPrice.toLocaleString("vi-VN") + " VNĐ";
+            finalPriceInput.value = finalPrice.toLocaleString("vi-VN") + " VNĐ";
+        }
+        
+        /**
+         * Kiểm tra số lượng không vượt quá tồn kho.
+         */
+        function validateQuantity() {
+            const selectedOption = phoneSelect.options[phoneSelect.selectedIndex];
+            if (!selectedOption || !selectedOption.dataset.stock) return;
+
+            const stock = parseInt(selectedOption.dataset.stock) || 0;
+            const quantity = parseInt(quantityInput.value) || 0;
+
+            if (quantity > stock) {
+                alert("❌ Số lượng khuyến mãi không được vượt quá số lượng tồn kho (" + stock + ")");
+                quantityInput.value = stock; // Tự động điều chỉnh về giá trị lớn nhất có thể
+            }
+        }
+        quantityInput.addEventListener('input', validateQuantity);
+        
+        /**
+         * Kiểm tra mọi thứ lần cuối trước khi submit form.
+         */
+        function validateBeforeSubmit() {
+            validateQuantity(); // Chạy lại kiểm tra số lượng
+            
+            const startTime = new Date(startTimeInput.value);
+            const endTime = new Date(endTimeInput.value);
+
+            if (endTime <= startTime) {
+                alert("❌ Thời gian kết thúc phải diễn ra sau thời gian bắt đầu.");
+                return false; // Chặn việc submit form
+            }
+            
+            return true; // Cho phép submit
+        }
+        
+        /*]]>*/
+    </script>
+
+</body>
+</html>

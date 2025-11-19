@@ -1,0 +1,65 @@
+<!-- src/main/resources/templates/bits/nav-items.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <!-- 
+      Fragment mới: Kết hợp cả nút quay lại và thanh tìm kiếm.
+      Mỗi thành phần được đặt trong một thẻ <li> riêng biệt.
+    -->
+    <th:block th:fragment="backAndSearch">
+        <!-- Mục 1: Nút Quay lại -->
+        <li>
+            <a href="javascript:void(0)" 
+            onclick="if (document.referrer) { window.history.back(); } else { window.location.href='/phones'; }">
+            Quay lại
+            </a>
+        </li>
+
+        <!-- Mục 2: Thanh tìm kiếm -->
+        <li class="nav-search-item">
+            <form th:action="@{/phones/search}" method="get" >
+                <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required>
+                <button type="submit">Tìm</button>
+            </form>
+        </li>
+    </th:block>
+
+    <!-- Bạn có thể giữ các fragment khác ở đây -->
+    <th:block th:fragment="searchBar">
+        <li class="nav-search-item">
+            <form th:action="@{/phones/search}" method="get" >
+                <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required>
+                <button type="submit">Tìm</button>
+            </form>
+        </li>
+    </th:block>
+    <!-- search_user -->
+    <th:block th:fragment="searchBar_user">
+        <li class="nav-search-item">
+            <form th:action="@{/phones/search_user}" method="get" >
+                <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required>
+                <button type="submit">Tìm</button>
+            </form>
+        </li>
+    </th:block>
+    <th:block th:fragment="backAndSearch_user">
+        <!-- Mục 1: Nút Quay lại -->
+        <li>
+            <a href="javascript:void(0)" 
+            onclick="if (document.referrer) { window.history.back(); } else { window.location.href='/phones/index_User'; }">
+            Quay lại
+            </a>
+        </li>
+
+        <!-- Mục 2: Thanh tìm kiếm -->
+        <li class="nav-search-item">
+            <form th:action="@{/phones/search_user}" method="get" >
+                <input type="text" name="keyword" placeholder="Tìm kiếm sản phẩm..." required>
+                <button type="submit">Tìm</button>
+            </form>
+        </li>
+    </th:block>
+
+</body>
+</html>

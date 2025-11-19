@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Giỏ Hàng Mua Sắm</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f7f7f7;
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        .cart-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .15);
+            transition: all 0.3s ease;
+        }
+
+        .product-img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .price-strike { text-decoration: line-through; color: #888; }
+        .final-price { font-size: 18px; font-weight: bold; color: #d9534f; }
+        .discount-percent { color: #0d6efd; font-weight: bold; margin-left: 6px; }
+
+        .ad-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, .2);
+            transition: 0.3s;
+        }
+
+        .btn-buy:active { transform: scale(0.98); }
+        .btn-buy:hover { background-color: #0056b3; }
+
+        /* Vùng scroll cho Voucher */
+        .voucher-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        .voucher-scroll::-webkit-scrollbar { width: 6px; }
+        .voucher-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .voucher-scroll::-webkit-scrollbar-thumb { background: #b8b8b8; border-radius: 10px; }
+        .voucher-scroll::-webkit-scrollbar-thumb:hover { background: #8f8f8f; }
+
+        /* === PHONG CÁCH COUPON MỚI - GỌN GÀNG HƠN === */
+        .coupon-card {
+            position: relative;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6a82fb, #fc5c7d);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden; /* Giấu các phần thừa của vết cắt */
+        }
+
+        .coupon-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Vết cắt tròn 2 bên */
+        .coupon-card::before,
+        .coupon-card::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #f7f7f7;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-top: -10px; /* Dịch lên 1 chút để vết cắt vào giữa phần trên */
+        }
+
+        .coupon-card::before { left: -10px; }
+        .coupon-card::after { right: -10px; }
+
+        /* Phần chính của coupon */
+        .coupon-main {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .coupon-discount-value {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .coupon-info { flex-grow: 1; }
+        .coupon-code {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        .coupon-description {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .coupon-badge {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Phần footer chứa chi tiết */
+        .coupon-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 10px 20px 12px 20px;
+            margin: 0 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.4);
+        }
+
+        .coupon-details, .coupon-meta {
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .coupon-details div { margin-bottom: 2px; }
+        .coupon-meta { text-align: right; }
+        .coupon-meta .status {
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container py-4">
+
+    <!-- HEADER -->
+    <div class="text-center mb-4">
+        <h1 class="fw-bold">Toàn bộ giỏ hàng (FULL DATA) của tôi</h1>
+        <p class="text-muted">Quản lý sản phẩm và hoàn tất đơn hàng</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- LEFT: GIỎ HÀNG -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <h4 class="mb-4 fw-bold d-flex align-items-center">
+                        <svg width="26" height="26" fill="none" stroke="currentColor" class="me-2 text-primary"
+                             viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0V19a2 2 0 002 2h7a2 2 0 002-2v-.5"/>
+                        </svg>
+                        Sản phẩm trong giỏ
+                    </h4>
+
+                    <div class="vstack gap-3">
+                        <!-- LOOP CART ITEMS -->
+                        <div th:each="item : ${cartPhones}"
+                             class="card p-3 border-0 shadow-sm cart-item"
+                             th:data-id="${item.PhoneDetail.PhoneId}"
+                             th:data-stock="${item.PhoneDetail.StockPhone}"
+                             th:data-original-price="${item.PhoneDetail.PricePhone}"
+                             th:data-promo-qty="${item.PhoneDetail.QuantityPhone != null ? item.PhoneDetail.QuantityPhone : 0}"
+                             th:data-is-promo="${item.PhoneDetail.StatusDiscountPhone == 'active'}">
+                            <div class="row g-3 align-items-center">
+
+                                <!-- Checkbox -->
+                                <div class="col-auto">
+                                    <input type="checkbox" class="form-check-input cart-check"
+                                           th:data-id="${item.PhoneDetail.PhoneId}">
+                                </div>
+
+                                <!-- Ảnh -->
+                                <div class="col-auto">
+                                    <img class="product-img" th:src="${item.PhoneDetail.ImageUrlPhoneId}">
+                                </div>
+
+                                <!-- Thông tin -->
+                                <div class="col">
+                                    <h5 class="fw-bold" th:text="${item.PhoneDetail.NamePhoneId}"></h5>
+                                    <div><strong>ID:</strong> <span th:text="${item.PhoneDetail.PhoneId}"></span></div>
+                                    <div><strong>Hãng:</strong> <span th:text="${item.PhoneDetail.BrandPhoneId}"></span></div>
+                                    <div><strong>Tồn kho:</strong> <span th:text="${item.PhoneDetail.StockPhone}"></span></div>
+                                    <div th:if="${item.PhoneDetail.StatusDiscountPhone == 'active'}"><strong>Số lượng khuyến mại:</strong> <span th:text="${item.PhoneDetail.QuantityPhone}"></span></div>
+
+                                    <!-- Giá -->
+                                    <div class="mt-2">
+                                        <strong>Giá:</strong>
+                                        <div class="ms-2 d-inline-block">
+                                            <!-- Không giảm giá -->
+                                            <div th:if="${item.PhoneDetail.DiscountPhone == null or item.PhoneDetail.DiscountPhone == 0 or item.PhoneDetail.StatusDiscountPhone == 'inactive'}">
+                                                <span class="fw-bold text-primary price"
+                                                      th:data-id="${item.PhoneDetail.PhoneId}"
+                                                      th:data-price="${item.PhoneDetail.PricePhone}"
+                                                      th:text="${#numbers.formatInteger(item.PhoneDetail.PricePhone,0,'COMMA')} + ' VNĐ'">
+                                                </span>
+                                            </div>
+                                            <!-- Giảm giá ACTIVE -->
+                                            <div th:if="${item.PhoneDetail.StatusDiscountPhone == 'active'}">
+                                                <div class="final-price price"
+                                                     th:data-id="${item.PhoneDetail.PhoneId}"
+                                                     th:data-price="${item.PhoneDetail.FinalPrice}"
+                                                     th:text="${#numbers.formatInteger(item.PhoneDetail.FinalPrice,0,'COMMA')} + ' VNĐ'">
+                                                </div>
+                                                <div>
+                                                    <span class="price-strike"
+                                                          th:text="${#numbers.formatInteger(item.PhoneDetail.PricePhone,0,'COMMA')} + ' VNĐ'"></span>
+                                                    <span class="discount-percent"
+                                                          th:text="'-' + ${item.PhoneDetail.DiscountPhone} + '%'"></span>
+                                                </div>
+                                            </div>
+                                            <!-- UPCOMING -->
+                                            <div th:if="${item.PhoneDetail.StatusDiscountPhone == 'upcoming'}">
+                                                <span class="badge bg-secondary">Sắp diễn ra</span>
+                                                <div class="price"
+                                                     th:data-id="${item.PhoneDetail.PhoneId}"
+                                                     th:data-price="${item.PhoneDetail.PricePhone}"
+                                                     th:text="${#numbers.formatInteger(item.PhoneDetail.PricePhone,0,'COMMA')} + ' VNĐ'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Số lượng -->
+                                <div class="col-auto">
+                                    <div class="input-group" style="width:130px;">
+                                        <button class="btn btn-outline-secondary btn-qty" data-type="minus" th:data-id="${item.PhoneDetail.PhoneId}">−</button>
+                                        <input type="text" class="form-control text-center cart-qty" th:data-id="${item.PhoneDetail.PhoneId}" th:value="${item.Quantity}" readonly>
+                                        <button class="btn btn-outline-secondary btn-qty" data-type="plus" th:data-id="${item.PhoneDetail.PhoneId}">+</button>
+                                    </div>
+                                </div>
+                                <!-- ✅ NÚT XÓA ĐÃ ĐƯỢC DI CHUYỂN VÀO TRONG ROW -->
+                                <div class="col-auto">
+                                    <form th:action="@{/phones/deleteCarIdUser/{id_phone}(id_phone=${item.PhoneDetail.PhoneId})}"
+                                        method="post"
+                                        onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Xóa sản phẩm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                                <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm-2.038 1.858a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.528zM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5m3.5 0a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tổng thanh toán -->
+                    <div class="mt-4 p-3 bg-light rounded shadow-sm">
+                        <h5 class="fw-bold">Tổng thanh toán</h5>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span>Tạm tính:</span>
+                            <span id="subtotal" class="fw-bold">0 VNĐ</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fs-5 fw-bold">
+                            <span>Tổng cộng:</span>
+                            <span id="total" class="text-danger">0 VNĐ</span>
+                        </div>
+                        <button class="btn btn-primary w-100 mt-3 btn-buy">
+                            Mua ngay (<span id="buyTotal">0</span>)
+                        </button>
+                    </div>
+                    <!-- nút quay lại  -->
+                    <div class="mt-4 p-3 bg-light rounded shadow-sm">
+                        <form th:action="@{/phones/index_User}" method="get">
+                            <button type="submit" class="btn btn-primary w-100 mt-3"style="color: #000000; background: #c0c0c0;">
+                                ← Quay lại
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Voucher + Gợi ý -->
+        <div class="col-lg-4">
+            <!-- Voucher -->
+            <div class="card shadow-sm" style="height: 500px;">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="fw-bold mb-3">Mã giảm giá</h5>
+                    <div class="voucher-scroll flex-grow-1">
+                        <!-- LOOP VOUCHERS -->
+                        <div th:each="vc : ${userVouchersinformation}" class="mb-3">
+                            <div class="coupon-card">
+                                <div class="coupon-badge" th:text="${vc.isUsed ? 'Đã dùng' : 'Chưa dùng'}"></div>
+                                <div class="coupon-main">
+                                    <div class="coupon-discount">
+                                        <div class="coupon-discount-value" th:text="${vc.discountPercent} + '%'"></div>
+                                    </div>
+                                    <div class="coupon-info">
+                                        <strong class="coupon-code" th:text="${vc.code}"></strong>
+                                        <div class="coupon-description" th:text="${vc.description}"></div>
+                                    </div>
+                                </div>
+                                <div class="coupon-footer">
+                                    <div class="coupon-details">
+                                        <div>• Đơn tối thiểu: <span th:text="${#numbers.formatInteger(vc.minOrderValue, 0, 'COMMA')}"></span></div>
+                                        <div>• Giảm tối đa: <span th:text="${#numbers.formatInteger(vc.maxDiscount, 0, 'COMMA')}"></span></div>
+                                        <div>• Hạn dùng: <span th:text="${vc.expiredAt}"></span></div>
+                                    </div>
+                                    <div class="coupon-meta">
+                                        <div>Còn: <b th:text="${vc.quantity}"></b></div>
+                                        <div class="status" th:text="${vc.status}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sản phẩm đề xuất -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Sản phẩm đề xuất</h5>
+                    <div class="vstack gap-3">
+                        <div class="border rounded p-3 shadow-sm ad-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="fs-2">📱</div>
+                                <div>
+                                    <div class="fw-semibold">iPad Air 2024</div>
+                                    <div class="d-flex gap-2">
+                                        <span class="fw-bold text-danger">14.990.000₫</span>
+                                        <span class="text-muted text-decoration-line-through small">16.990.000₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3">Thêm vào giỏ</button>
+                        </div>
+                        <div class="border rounded p-3 shadow-sm ad-card">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="fs-2">⌚</div>
+                                <div>
+                                    <div class="fw-semibold">Apple Watch Series 9</div>
+                                    <div class="d-flex gap-2">
+                                        <span class="fw-bold text-danger">9.990.000₫</span>
+                                        <span class="text-muted text-decoration-line-through small">11.990.000₫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100 mt-3">Thêm vào giỏ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT -->
+<script>
+    function formatMoney(n) {
+        return n.toLocaleString("vi-VN") + " VNĐ";
+    }
+
+    // Lấy giá của sản phẩm (ưu tiên giá khuyến mãi nếu có)
+    function getProductPrice(cartItem) {
+        if (!cartItem) return 0;
+        const priceEl = cartItem.querySelector(".price");
+        return priceEl ? parseFloat(priceEl.dataset.price || 0) : 0;
+    }
+    
+    // Lấy số lượng từ input
+    function getProductQty(id) {
+        const qtyEl = document.querySelector(`.cart-qty[data-id='${id}']`);
+        if (!qtyEl) return 0;
+        return parseInt(qtyEl.value || 0);
+    }
+
+    // === HÀM CẬP NHẬT TỔNG TIỀN ĐÃ ĐƯỢC VIẾT LẠI ===
+    function updateTotal() {
+        let subtotal = 0;
+        document.querySelectorAll(".cart-check:checked").forEach(chk => {
+            const id = chk.dataset.id;
+            const cartItem = chk.closest('.cart-item');
+            if (!cartItem) return;
+
+            // Lấy tất cả dữ liệu cần thiết từ data-* attributes
+            const selectedQty = getProductQty(id);
+            const isPromo = cartItem.dataset.isPromo === 'true';
+            const promoQty = parseInt(cartItem.dataset.promoQty || 0);
+            const originalPrice = parseFloat(cartItem.dataset.originalPrice || 0);
+            const finalPrice = getProductPrice(cartItem); // Đây là giá đã giảm
+
+            let itemTotal = 0;
+
+            // Logic tính giá hỗn hợp
+            if (isPromo && promoQty > 0 && selectedQty > promoQty) {
+                const promoPart = promoQty * finalPrice;
+                const regularPart = (selectedQty - promoQty) * originalPrice;
+                itemTotal = promoPart + regularPart;
+                console.log(`ID ${id}: Tính giá hỗn hợp - ${promoQty}*${finalPrice} + ${selectedQty - promoQty}*${originalPrice} = ${itemTotal}`);
+            } else {
+                // Tính giá bình thường (hoặc là không có KM, hoặc số lượng mua trong giới hạn KM)
+                itemTotal = selectedQty * finalPrice;
+                console.log(`ID ${id}: Tính giá thường - ${selectedQty}*${finalPrice} = ${itemTotal}`);
+            }
+            
+            subtotal += itemTotal;
+        });
+
+        document.getElementById("subtotal").innerText = formatMoney(subtotal);
+        document.getElementById("total").innerText = formatMoney(subtotal);
+        document.getElementById("buyTotal").innerText = subtotal.toLocaleString("vi-VN");
+    }
+
+    // Lắng nghe sự kiện click nút tăng/giảm số lượng
+    document.querySelectorAll(".btn-qty").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
+            const type = btn.dataset.type;
+            const input = document.querySelector(`.cart-qty[data-id='${id}']`);
+            const cartItem = btn.closest('.cart-item');
+            const maxStock = parseInt(cartItem.dataset.stock || 0);
+
+            let qty = parseInt(input.value || 1);
+
+            if (type === "plus") {
+                // Chỉ tăng nếu chưa vượt tồn kho
+                if (qty < maxStock) {
+                    qty++;
+                } else {
+                    // Có thể thêm thông báo cho người dùng ở đây
+                    console.warn(`Sản phẩm ID ${id} đã đạt số lượng tồn kho tối đa.`);
+                }
+            } else { // type === "minus"
+                qty = Math.max(1, qty - 1);
+            }
+            
+            input.value = qty;
+            updateTotal();
+        });
+    });
+    
+    // Lắng nghe sự kiện thay đổi checkbox
+    document.querySelectorAll(".cart-check").forEach(chk => chk.addEventListener("change", updateTotal));
+
+    // Chạy updateTotal lần đầu khi tải trang
+    window.addEventListener("DOMContentLoaded", updateTotal);
+
+    // Xử lý nút Mua Ngay
+    document.querySelector(".btn-buy").addEventListener("click", () => {
+        const selectedIds = Array.from(document.querySelectorAll(".cart-check:checked"))
+            .map(chk => chk.dataset.id);
+        if (!selectedIds.length) {
+            alert("Vui lòng chọn ít nhất một sản phẩm!");
+            return;
+        }
+        window.location.href = "/orders/buylist?ids=" + selectedIds.join(",");
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+/* ============================
+🌐 BỐ CỤC TỔNG THỂ TRANG
+============================ */
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+
+User
+/* ============================
+🌐 BỐ CỤC TỔNG THỂ TRANG
+============================ */
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+/* ============================
+🧱 BỐ CỤC PHẦN ẢNH & THÔNG TIN
+============================ */
+.product-section {
+display: flex;
+gap: 20px;
+align-items: flex-start;
+margin-top: 20px;
+}
+
+.image-col {
+flex: 0 0 70%;
+max-width: 70%;
+height: 400px;                    
+display: flex;
+justify-content: center;
+align-items: center;
+overflow: hidden;
+border-radius: 10px;
+border: 1px solid #ddd;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+background-color: #fff;
+}
+.image-col img {
+width: 100%;
+height: 100%;
+object-fit: cover;                 /* ⚡ Ảnh vừa khung, không méo */
+display: block;
+}
+
+.info-col {
+flex: 0 0 30%;
+max-width: 30%;
+height: 400px;                     
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+padding: 15px;
+background-color: #fff;
+border: 1px solid #ddd;
+border-radius: 10px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+position: relative;
+font-size: 0.9rem;
+}
+/* ============================
+🏷️ CỜ GIẢM GIÁ GÓC TRÊN
+============================ */
+.info-col .position-absolute.top-0.end-0 {
+font-size: 0.85rem;
+padding: 4px 8px;
+border-radius: 0 8px 0 8px;
+font-weight: 600;
+}
+/* ============================
+📝 THÔNG TIN SẢN PHẨM
+============================ */
+.info-col h2 {
+font-size: 1.2rem;
+font-weight: 600;
+color: #222;
+margin-bottom: 8px;
+line-height: 1.4;
+}
+.info-col p {
+margin-bottom: 6px;
+color: #444;
+}
+/* ============================
+💰 GIÁ
+============================ */
+.price-section {
+margin: 8px 0;
+font-size: 1rem;
+}
+.text-decoration-line-through {
+color: #888;
+margin-right: 6px;
+}
+.text-danger {
+font-size: 1.1rem;
+font-weight: bold;
+}
+/* ============================
+🧭 NÚT HÀNH ĐỘNG
+============================ */
+.info-col .btn {
+font-size: 0.85rem;
+padding: 6px 10px;
+width: 100%;
+margin-top: 8px;
+}
+/* ============================
+📝 PHẦN ĐÁNH GIÁ (nếu có)
+============================ */
+.review-list {
+background-color: #fff;
+padding: 20px;
+border-radius: 12px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+margin-top: 30px;
+}
+.review-list h2 {
+font-size: 24px;
+margin-bottom: 20px;
+color: #333;
+}
+.review-list img {
+max-width: 200px;
+border-radius: 8px;
+margin-bottom: 15px;
+display: block;
+}
+.review-list p {
+margin-bottom: 8px;
+font-size: 15px;
+color: #555;
+}
+.review-list .text-warning i {
+margin-right: 2px;
+font-size: 18px;
+}
+.review-list .card {
+border: none;
+border-radius: 10px;
+background-color: #f9f9f9;
+transition: box-shadow 0.3s ease;
+}
+.review-list .card:hover {
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+.review-list .card p strong {
+color: #222;
+}
+.review-list .col-md-4 {
+padding: 10px 20px;
+}
+.review-list .row {
+align-items: center;
+}
+/* ============================
+📊 PHÂN BỐ SAO
+============================ */
+.rating-distribution {
+width: 40%;
+margin-top: 10px;
+}
+.rating-distribution .progress {
+width: 100%;
+background-color: #e9ecef;
+border-radius: 8px;
+overflow: hidden;
+}
+.rating-distribution .progress-bar {
+background-color: #ffc107;
+transition: width 0.6s ease;
+height: 100%;
+}
+.rating-distribution .rating-label {
+width: 40px;
+}
+.rating-distribution .rating-percent {
+min-width: 50px;
+text-align: right;
+font-weight: 500;
+}
+/* ============================
+📱 RESPONSIVE
+============================ */
+@media (max-width: 992px) {
+.product-section {
+flex-direction: column;
+}
+code
+Code
+.image-col,
+.info-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+.image-col img {
+    height: auto;
+    max-height: 400px;
+}
+
+.info-col {
+    margin-top: 15px;
+}
+}
+@media (max-width: 576px) {
+.info-col h2 {
+font-size: 1rem;
+}
+code
+Code
+.price-section {
+    font-size: 0.9rem;
+}
+
+.text-danger {
+    font-size: 1rem;
+}
+}

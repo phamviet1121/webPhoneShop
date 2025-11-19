@@ -1,0 +1,23 @@
+<!-- src/main/resources/templates/fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <th:block th:fragment="header(showLoginButton, extraNavItems)">
+        <link rel="stylesheet" th:href="@{/css/header.css}">
+        <nav class="main-nav">
+            <div class="nav-logo">
+                <a th:href="@{/}">Cửa Hàng</a>
+            </div>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/contact}">Contact</a></li>
+                <!-- Thanh tìm kiếm sẽ được chèn vào đây -->
+                <th:block th:if="${extraNavItems != null}" th:replace="${extraNavItems}"></th:block>
+            </ul>
+            <div class="nav-auth">
+                <a th:if="${showLoginButton}" th:href="@{/auth/login}" class="login-btn">Đăng nhập</a>
+            </div>
+        </nav>
+    </th:block>
+</body>
+</html>

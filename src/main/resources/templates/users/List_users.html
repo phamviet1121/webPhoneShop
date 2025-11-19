@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách người dùng</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .action-buttons a {
+            margin: 0 5px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .edit-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h2>Danh sách người dùng</h2>
+    <a th:href="@{/phones/index_Admin}" style="display: inline-block; padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+        Quay lại trang chủ
+    </a>
+    <a th:href="@{/auth/new_user}" style="display: inline-block; padding: 10px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+        Thêm người dùng
+    </a>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Tên</th>
+            <th>Email</th>
+            <th>Mật khẩu</th>
+            <th>số điện thoại </th>
+            <th>địa chỉ</th>
+            <th>phân quyền</th>
+            <th>Hành động</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.idUser}"></td>
+            <td th:text="${user.nameUser}"></td>
+            <td th:text="${user.gmailUser}"></td>
+            <td th:text="${user.passUser}"></td>
+            <td th:text="${user.phoneNumber}"></td>
+            <td th:text="${user.address}"></td>
+            <td th:text="${user.role}"></td>
+
+            <td class="action-buttons">
+                <a th:href="@{/auth/edit_user/{id}(id=${user.idUser})}" class="edit-btn">Sửa</a>
+                <a th:href="@{/auth/delete_user/{id}(id=${user.idUser})}" class="delete-btn" onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này?');">Xóa</a>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

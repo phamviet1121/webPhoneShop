@@ -1,0 +1,167 @@
+/* discount-card.css */
+
+/* --- Lưới sản phẩm khuyến mãi --- */
+.discount-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    justify-items: center;
+    width: 100%;
+}
+
+/* --- Thẻ sản phẩm khuyến mãi --- */
+.discount-card {
+    background: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.discount-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+/* Hình ảnh */
+.discount-image {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.discount-image img {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Thông tin sản phẩm */
+.discount-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.discount-name {
+    font-size: clamp(1em, 2vw, 1.4em);
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.old-price .price-strike {
+    text-decoration: line-through;
+    color: #555;
+    margin-right: 5px;
+}
+
+.final-price {
+    font-size: 18px;
+    font-weight: bold;
+    color: red;
+    margin-bottom: 5px;
+}
+
+.discount-percent {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.quantity {
+    font-size: 0.95em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Nút hành động */
+.discount-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    gap: 10px;
+}
+
+.discount-actions a {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: black;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+/* --- Responsive cho lưới khuyến mãi --- */
+@media (max-width: 992px) {
+    .discount-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .discount-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* upcoming-discount.css */
+
+.discount-price-upcoming {
+    display: inline-block;
+    text-align: left;
+    position: relative;
+    margin-top: 8px;
+}
+
+.discount-price-upcoming .upcoming-final-price {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #ffc107;
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    transform: translateX(15%);
+}
+
+.discount-price-upcoming .upcoming-original-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.discount-price-upcoming .upcoming-original-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.discount-price-upcoming .upcoming-discount-percent {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #d0021b;
+    background-color: #ffecec;
+    padding: 1px 4px;
+    border-radius: 4px;
+}

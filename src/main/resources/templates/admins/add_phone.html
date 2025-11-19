@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Thêm điện thoại</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            text-align: center;
+        }
+        a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Thêm điện thoại mới</h2>
+    <!-- <form th:action="@{/phones/save}" th:object="${phone}" method="post"> -->
+        <form th:action="@{/phones/save}" th:object="${phone}" method="post" enctype="multipart/form-data">
+
+        <label for="name">Tên điện thoại:</label>
+        <input type="text" id="name" name="name" th:field="*{name}" required>
+
+        <label for="brand">Hãng:</label>
+        <input type="text" id="brand" name="brand" th:field="*{brand}" required>
+
+        <label for="price">Giá:</label>
+        <input type="number" id="price" name="price" th:field="*{price}" required>
+
+        <label for="stock">Số lượng:</label>
+        <input type="number" id="stock" name="stock" th:field="*{stock}" required>
+
+        <label for="imageFile">Chọn hình ảnh:</label>
+        <input type="file" id="imageFile" name="imageFile" accept="image/*" required>
+
+        <label for="description">Mô tả:</label>
+        <textarea id="description" name="description" th:field="*{description}" rows="4" required></textarea>
+
+        <label for="status">Trạng thái:</label>
+        <select id="status" name="status" th:field="*{status}" required>
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Không hoạt động</option>
+        </select>
+
+        <button type="submit">Lưu</button>
+    </form>
+    <a th:href="@{/phones/index_Admin}">Quay lại danh sách</a>
+</body>
+</html>

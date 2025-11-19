@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chào mừng bạn đến cửa hàng của chúng tôi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/product-card.css}">
+    <link rel="stylesheet" th:href="@{/css/discount-card.css}">
+    <link rel="stylesheet" th:href="@{/css/sidebar.css}">
+    <!-- CSS CHO NÚT LÊN ĐẦU TRANG -->
+    <style>
+        body{
+            background-color: #ebf9f0;
+        }
+        #scrollToTopBtn {
+            display: none; /* Ẩn theo mặc định */
+            position: fixed; /* Giữ cố định khi cuộn */
+            bottom: 20px;
+            left: 30px; /* Đặt ở góc dưới bên trái */
+            z-index: 99; /* Luôn nổi lên trên */
+            border: none;
+            outline: none;
+            background-color: #007bff; /* Màu xanh dương */
+            color: white;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 50%; /* Bo tròn */
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #scrollToTopBtn:hover {
+            background-color: #0056b3; /* Đậm hơn khi di chuột */
+            transform: scale(1.1);
+        }
+        #discount-section-title,
+        #upcoming-section-title {
+            scroll-margin-top: 80px; /* Chừa ra 80px phía trên khi cuộn tới */
+        }
+        /* // */
+        /* Vùng chứa các vé voucher */
+.voucher-ticket-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 20px;
+}
+
+/* Tấm vé */
+.voucher-ticket {
+    background: #fff;
+    border-radius: 12px;
+    border-left: 6px dashed #ff9800;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform .2s;
+}
+
+.voucher-ticket:hover {
+    transform: translateY(-4px);
+}
+
+/* Header */
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ticket-code {
+    font-weight: bold;
+    font-size: 18px;
+    color: #007bff;
+}
+
+.ticket-percent {
+    font-weight: bold;
+    background: #ffc107;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+/* Nội dung */
+.ticket-body div {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* Footer */
+.ticket-footer {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-collect {
+    background: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    width: 100%;
+    transition: 0.2s;
+}
+
+.btn-collect:hover {
+    background: #0056b3;
+    color: #fff;
+}
+
+.voucher-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.voucher-view {
+    overflow: hidden;
+    width: 100%;
+}
+
+.voucher-track {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.4s ease;
+}
+
+/* Mỗi voucher chiếm 1/3 chiều rộng */
+.voucher-ticket {
+    width: calc(33.33% - 20px);
+    background: #fbf9e7;
+    border-left: 6px dashed #ff9800;
+    border-radius: 12px;
+    padding: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.ticket-code {
+    font-weight: bold;
+    font-size: 18px;
+    color: #007bff;
+}
+
+.ticket-percent {
+    background: #ffc107;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+.ticket-body div {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.ticket-footer {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-collect {
+    background: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+/* Nút điều hướng */
+.voucher-nav-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 16px;
+    font-size: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: 0.2s;
+}
+
+.voucher-nav-btn:hover {
+    background: #0056b3;
+}
+
+.voucher-nav-btn.left {
+    left: -10px;
+}
+
+.voucher-nav-btn.right {
+    right: -10px;
+}
+
+/* Chia body voucher thành 2 cột */
+.ticket-body.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px;
+}
+
+/* Cột trái */
+.ticket-left div {
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+/* Cột phải */
+.ticket-right {
+    font-size: 14px;
+}
+
+.ticket-description {
+    margin: 0;
+    white-space: normal;     /* Cho phép xuống dòng */
+    word-wrap: break-word;   /* Cắt từ nếu quá dài */
+    line-height: 1.3;
+}
+
+
+    </style>
+    
+</head>
+<body>
+
+    <!-- PHẦN 1 & 2: Header và Carousel -->
+    <div th:replace="~{fragments/header :: header(showLoginButton=false, extraNavItems=~{bits/nav-items :: searchBar_user})}"></div>
+    <div th:replace="~{fragments/carousel :: imageCarousel}"></div>
+
+    <div th:if="${error}"
+        id="error-message"
+        th:text="${error}"
+        style="display:none;"></div>
+
+    <div th:if="${success}"
+        id="success-message"
+        th:text="${success}"
+        style="display:none;"></div>
+
+    <!-- PHẦN 3: Nội dung trang -->
+    <div class="container page-content">
+        <!-- THANH LỌC SẢN PHẨM -->
+        <div class="filter-bar">
+            <div class="filter-group" id="brand-filter-group">
+                <span class="group-label">Thương hiệu:</span>
+                <button class="filter-btn active" data-brand="all">Tất cả</button>
+                <button class="filter-btn" data-brand="ios">iOS</button>
+                <button class="filter-btn" data-brand="samsung">Samsung</button>
+                <button class="filter-btn" data-brand="oppo">Oppo</button>
+                <button class="filter-btn" data-brand="nokia">Nokia</button>
+                <button class="filter-btn" data-brand="xiaomi">Xiaomi</button>
+            </div>
+            <div class="filter-group" id="price-sort-group">
+                 <span class="group-label">Sắp xếp:</span>
+                <select id="price-sorter" class="form-select" style="width: auto;">
+                    <option value="default">Mặc định</option>
+                    <option value="price-asc">Giá: Thấp đến Cao</option>
+                    <option value="price-desc">Giá: Cao đến Thấp</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="product-container">
+            <!-- Sử dụng th:each để lặp qua danh sách sản phẩm. JavaScript sẽ quản lý việc hiển thị/ẩn -->
+            <div class="product-card" th:each="p : ${phonesWithPromotions}"
+                th:attr="data-name=${p['NamePhoneId']}, data-price=${p['FinalPrice'] != null ? p['FinalPrice'] : p['PricePhone']}, data-brand=${p['BrandPhoneId']?.toLowerCase()}">
+
+                <!-- Ảnh sản phẩm -->
+                <div class="product-image">
+                    <img th:src="${p['ImageUrlPhoneId'] != null ? p['ImageUrlPhoneId'] : 'https://via.placeholder.com/180'}" alt="Ảnh điện thoại">
+                </div>
+
+                <!-- Thông tin sản phẩm -->
+                <div class="product-info">
+                    <div class="product-name" th:text="${p['NamePhoneId']}"></div>
+                    <div class="product-meta">
+                        <span th:text="${p['BrandPhoneId']}"></span>
+                        <div style="display: inline-block;">
+                            <div th:if="${p['DiscountPhone'] == null or p['DiscountPhone'] == 0}">
+                                <span th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                            </div>
+                            <div th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0 and p['StatusDiscountPhone'] == 'active'}" class="discount-price-sale">
+                                <div class="final-price" th:text="${#numbers.formatInteger(p['FinalPrice'], 0, 'COMMA')} + ' VNĐ'"></div>
+                                <div class="old-price">
+                                    <span class="price-strike" th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                                    <span class="discount-percent" th:text="'-' + ${p['DiscountPhone']} + '%'"></span>
+                                </div>
+                            </div>
+                            <div th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0 and p['StatusDiscountPhone'] == 'upcoming'}" class="discount-price-upcoming">
+                                <div class="upcoming-final-price badge bg-warning text-dark">
+                                    <span th:text="${#numbers.formatInteger(p['PricePhone'] * (100 - p['DiscountPhone']) / 100, 0, 'COMMA')} + ' VNĐ'"></span>
+                                </div>
+                                <div class="upcoming-original-line">
+                                    <span class="upcoming-original-price" th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                                    <span class="upcoming-discount-percent" th:text="'-' + ${p['DiscountPhone']} + '%'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-status">
+                        <div th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0}">
+                            <span th:text="${p['StatusPhone']}"></span> |
+                            SL: <span th:text="${p['StockPhone']}"></span> /
+                            <span th:text="${p['QuantityPhone']}"></span>
+                        </div>
+                        <div th:if="${p['DiscountPhone'] == null or p['DiscountPhone'] == 0}">
+                            <span th:text="${p['StatusPhone']}"></span> |
+                            SL: <span th:text="${p['StockPhone']}"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Nút hành động -->
+                <div class="action-buttons">
+                    <a th:href="@{/phones/detail_user/{id}(id=${p['PhoneId']})}" class="btn btn-outline-primary btn-sm">Thông tin</a>
+                    <a th:href="@{/orders/buy/{id}(id=${p['PhoneId']})}" 
+                        class="btn btn-outline-primary btn-sm"
+                        onmouseover="this.style.backgroundColor='#ffc107'; this.style.borderColor='#ffc107'; this.style.color='#000';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#0d6efd'; this.style.color='#0d6efd';">
+                        Mua
+                    </a>
+                    <form th:action="@{/phones/addCarIdUser/{id_phone}(id_phone=${p['PhoneId']})}"
+                        method="post" style="display: inline;">
+
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- THANH PHÂN TRANG -->
+        <nav class="pagination-container" aria-label="Page navigation">
+            <ul class="pagination justify-content-center" id="pagination-list"></ul>
+        </nav>
+    </div>
+
+    <!-- PHẦN 4: Carousel thứ hai -->
+    <div th:replace="~{fragments/carousel :: imageCarousel_1}"></div>
+
+    <!-- PHẦN 5: Danh sách sản phẩm khuyến mãi -->
+    <div class="container mt-5">
+        <h3 class="mb-4 text-primary fw-bold" id="discount-section-title">Sản phẩm khuyến mãi</h3>
+        <div class="discount-container">
+            <div class="discount-card"
+                 th:each="p : ${phonesWithPromotions}"
+                 th:if="${p['DiscountPhone'] != null and p['DiscountPhone'] > 0 and p['StatusDiscountPhone'] == 'active'}">
+
+                <div class="discount-image">
+                    <img th:src="${p['ImageUrlPhoneId'] != null ? p['ImageUrlPhoneId'] : 'https://via.placeholder.com/180'}" alt="Ảnh điện thoại">
+                </div>
+                <div class="discount-info">
+                    <div class="discount-name" th:text="${p['NamePhoneId']}"></div>
+                    <div class="discount-price-sale">
+                        <div class="final-price" th:text="${#numbers.formatInteger(p['FinalPrice'], 0, 'COMMA')} + ' VNĐ'"></div>
+                        <div class="old-price">
+                            <span class="price-strike" th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                            <span class="discount-percent" th:text="'-' + ${p['DiscountPhone']} + '%'"></span>
+                        </div>
+                    </div>
+                    <div class="quantity">
+                        SL còn lại: <span th:text="${p['StockPhone']}"></span> / <span th:text="${p['QuantityPhone']}"></span>
+                    </div>
+                </div>
+                <div class="discount-actions">
+                    <a th:href="@{/phones/detail_user/{id}(id=${p['PhoneId']})}" class="btn btn-outline-primary btn-sm">Thông tin</a>
+                    <a th:href="@{/orders/buy/{id}(id=${p['PhoneId']})}" 
+                        class="btn btn-outline-primary btn-sm"
+                        onmouseover="this.style.backgroundColor='#ffc107'; this.style.borderColor='#ffc107'; this.style.color='#000';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#0d6efd'; this.style.color='#0d6efd';">
+                        Mua
+                    </a>
+                    <form th:action="@{/phones/addCarIdUser/{id_phone}(id_phone=${p['PhoneId']})}"
+                        method="post" style="display: inline;">
+
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHÂN TRANG KHUYẾN MÃI -->
+        <nav class="pagination-container" aria-label="Page navigation">
+            <ul class="pagination justify-content-center" id="discount-pagination"></ul>
+        </nav>
+    </div>
+
+    <!-- PHẦN 6: Carousel thứ ba -->
+    <div th:replace="~{fragments/carousel :: imageCarousel_future}"></div>
+
+    <!-- PHẦN 7: sản phảm sắp khuyến mại -->
+    <div class="container mt-5">
+        <h3 class="mb-4 text-primary fw-bold" id="upcoming-section-title">Sản phẩm chuẩn bị khuyến mãi</h3>
+
+        <!-- Danh sách sản phẩm UPCOMING -->
+        <div id="upcoming-discount-container" class="discount-container">
+            <!-- Lọc ngay trong th:each để chỉ lặp qua các sản phẩm có StatusDiscountPhone == 'upcoming' -->
+            <div class="discount-card"
+                th:each="p : ${phonesWithPromotions.?[StatusDiscountPhone == 'upcoming']}">
+
+                <!-- Ảnh sản phẩm -->
+                <div class="discount-image">
+                    <img th:src="${p['ImageUrlPhoneId'] != null ? p['ImageUrlPhoneId'] : 'https://via.placeholder.com/180'}"
+                        alt="Ảnh điện thoại">
+                </div>
+
+                <!-- Thông tin sản phẩm -->
+                <div class="discount-info">
+                    <!-- Tên sản phẩm -->
+                    <div class="discount-name" th:text="${p['NamePhoneId']}"></div>
+
+                    <!-- Thương hiệu -->
+                    <div class="discount-meta">
+                        Thương hiệu: <span th:text="${p['BrandPhoneId']}"></span>
+                    </div>
+
+                    <!-- Giá UPCOMING -->
+                    <div class="discount-price-upcoming">
+                        <!-- Giá sau khi giảm -->
+                        <div class="upcoming-final-price badge bg-warning text-dark" style="margin-left: 70px;">
+                            <span th:text="${#numbers.formatInteger(p['PricePhone'] * (100 - p['DiscountPhone']) / 100, 0, 'COMMA')} + ' VNĐ'"></span>
+                        </div>
+
+                        <!-- Giá gốc + phần trăm giảm -->
+                        <div class="upcoming-original-line">
+                            <span class="upcoming-original-price fw-bold"
+                                th:text="${#numbers.formatInteger(p['PricePhone'], 0, 'COMMA')} + ' VNĐ'"></span>
+                            <span class="upcoming-discount-percent"
+                                th:text="'-' + ${p['DiscountPhone']} + '%'"></span>
+                        </div>
+                    </div>
+
+                    <!-- Trạng thái & số lượng -->
+                    <div class="discount-status">
+                        <span th:text="${p['StatusPhone']}"></span> |
+                        SL: <span th:text="${p['StockPhone']}"></span> /
+                        <span th:text="${p['QuantityPhone']}"></span>
+                    </div>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="discount-actions">
+                    <a th:href="@{/phones/detail_user/{id}(id=${p['PhoneId']})}" class="btn btn-outline-primary btn-sm">Thông tin</a>
+                    <a th:href="@{/orders/buy/{id}(id=${p['PhoneId']})}" 
+                        class="btn btn-outline-primary btn-sm"
+                        onmouseover="this.style.backgroundColor='#ffc107'; this.style.borderColor='#ffc107'; this.style.color='#000';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#0d6efd'; this.style.color='#0d6efd';">
+                        Mua
+                    </a>
+                    <form th:action="@{/phones/addCarIdUser/{id_phone}(id_phone=${p['PhoneId']})}"
+                        method="post" style="display: inline;">
+
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHÂN TRANG -->
+        <nav class="pagination-container" aria-label="Page navigation">
+            <ul class="pagination justify-content-center" id="upcoming-pagination"></ul>
+        </nav>
+    </div>
+
+  <!-- PHẦN 7.1: Voucher -->
+<div class="container mt-5">
+    <h3 class="mb-4 text-primary fw-bold">Voucher giảm giá</h3>
+
+    <div class="voucher-wrapper">
+
+        <!-- Nút sang trái -->
+        <button class="voucher-nav-btn left" id="voucher-prev">❮</button>
+
+        <!-- Vùng chứa 3 voucher hiển thị -->
+        <div class="voucher-view">
+            <div id="voucher-track" class="voucher-track">
+                <div class="voucher-ticket" th:each="v : ${vouchers}">
+                    <div class="ticket-header">
+                        <span class="ticket-code" th:text="${v.code}"></span>
+                        <span class="ticket-percent" th:text="${v.discountPercent + '%'}"></span>
+                    </div>
+
+                    <div class="ticket-body two-columns">
+
+                        <!-- Cột trái -->
+                        <div class="ticket-left">
+                            <div><strong>Tối đa:</strong> <span th:text="${v.maxDiscount}"></span></div>
+                            <div><strong>Tối thiểu:</strong> <span th:text="${v.minOrderValue}"></span></div>
+
+                            <div>
+                                <strong>Hạn:</strong>
+                                <span th:if="${v.expiredAt != null}"
+                                    th:text="${#temporals.format(v.expiredAt, 'dd/MM/yyyy')}"></span>
+                                <span th:if="${v.expiredAt == null}">Không</span>
+                            </div>
+
+                            <div>
+                                <strong>Loại:</strong>
+                                <span th:text="${v.voucherType == 'order' ? 'Đơn hàng' : 'Sản phẩm'}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Cột phải -->
+                        <div class="ticket-right">
+                            <strong>Mô tả:</strong>
+                            <p class="ticket-description" th:text="${v.description}"></p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="ticket-footer">
+                        <a class="btn btn-sm btn-collect"
+                           th:href="@{'/phones/voucher/collect/' + ${v.id}}">
+                            Thu thập
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nút sang phải -->
+        <button class="voucher-nav-btn right" id="voucher-next">❯</button>
+
+    </div>
+</div>
+
+
+    <!-- PHẦN 8: Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+
+    <!-- ====================================================== -->
+    <!-- PHẦN 9: NÚT MỞ SIDEBAR VÀ SIDEBAR ẨN BÊN TRÁI -->
+    <!-- ====================================================== -->
+
+    <!-- NÚT MỞ SIDEBAR (ĐÃ ĐƯỢC TÁCH RA NGOÀI) -->
+    <button id="openSidebarBtn" title="Mở thông tin người dùng">👤</button>
+
+    <!-- SIDEBAR ẨN -->
+    <div id="userSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h5>Thông tin người dùng</h5>
+            <!-- NÚT ĐÓNG SIDEBAR (NẰM BÊN TRONG) -->
+            <button id="closeSidebarBtn" class="close-btn" title="Đóng">×</button> 
+        </div>
+        <div class="sidebar-content">
+            <p><strong>Tên:</strong> <span th:text="${user.nameUser}"></span></p>
+            <p><strong>Email:</strong> <span th:text="${user.gmailUser}"></span></p>
+            <p><strong>ID Người dùng:</strong> <span th:text="${session.idUser}"></span></p>
+            <a th:href="@{/orders/orders_list_User/{userId}(userId=${session.idUser})}" class="sidebar-link">Đơn hàng của tôi</a>
+            <a th:href="@{/orders/carts_list_User_view/{userId}(userId=${session.idUser})}" class="sidebar-link">Giỏ hàng của tôi</a>
+
+            <a th:href="@{/auth/edit_user_index/{id}(id=${user.idUser})}" class="sidebar-link">Sửa Thông Tin</a>
+            <a th:href="@{/auth/logout}" class="sidebar-link logout-link">Đăng xuất</a>
+        </div>
+    </div>
+
+    <!-- NÚT LÊN ĐẦU TRANG -->
+    <button onclick="scrollToTop()" id="scrollToTopBtn" title="Lên đầu trang">↑</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ==========================================================
+        // === LOGIC CHO SẢN PHẨM THƯỜNG (PHẦN 3)
+        // ==========================================================
+        const productContainer = document.querySelector('.product-container');
+        if (productContainer) {
+            const allProductCards = Array.from(productContainer.querySelectorAll('.product-card'));
+
+            if (allProductCards.length > 0) {
+                const brandFilterGroup = document.getElementById('brand-filter-group');
+                const brandButtons = brandFilterGroup.querySelectorAll('.filter-btn');
+                const priceSorter = document.getElementById('price-sorter');
+                const paginationList = document.getElementById('pagination-list');
+                const filterBar = document.querySelector('.filter-bar');
+
+                const PRODUCTS_PER_PAGE = 6;
+                let currentBrandFilter = 'all';
+                let currentPriceSort = 'default';
+                let currentPage = 1;
+                let filteredAndSortedCards = [...allProductCards];
+
+                function updateDisplay() {
+                    let tempFiltered = allProductCards.filter(card => {
+                        if (currentBrandFilter === 'all') return true;
+                        const cardBrand = card.dataset.brand || '';
+                        if (currentBrandFilter === 'ios' && (cardBrand.includes('apple') || cardBrand.includes('iphone'))) return true;
+                        return cardBrand.includes(currentBrandFilter);
+                    });
+
+                    if (currentPriceSort === 'price-asc') {
+                        tempFiltered.sort((a, b) => parseFloat(a.dataset.price) - parseFloat(b.dataset.price));
+                    } else if (currentPriceSort === 'price-desc') {
+                        tempFiltered.sort((a, b) => parseFloat(b.dataset.price) - parseFloat(a.dataset.price));
+                    }
+
+                    filteredAndSortedCards = tempFiltered;
+                    currentPage = 1;
+                    setupPagination(filteredAndSortedCards.length);
+                    displayProductsForCurrentPage();
+                }
+
+                function setupPagination(totalItems) {
+                    paginationList.innerHTML = '';
+                    const pageCount = Math.ceil(totalItems / PRODUCTS_PER_PAGE);
+
+                    for (let i = 1; i <= pageCount; i++) {
+                        const pageItem = document.createElement('li');
+                        pageItem.className = 'page-item' + (i === currentPage ? ' active' : '');
+                        pageItem.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                        paginationList.appendChild(pageItem);
+                    }
+                }
+
+                function displayProductsForCurrentPage() {
+                    // Xóa các thẻ sản phẩm hiện tại khỏi DOM trước khi thêm các thẻ mới
+                    while (productContainer.firstChild) {
+                        productContainer.removeChild(productContainer.firstChild);
+                    }
+
+                    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+                    const endIndex = startIndex + PRODUCTS_PER_PAGE;
+                    const paginatedItems = filteredAndSortedCards.slice(startIndex, endIndex);
+
+                    paginatedItems.forEach(card => productContainer.appendChild(card));
+                }
+
+                brandFilterGroup.addEventListener('click', function(event) {
+                    if (event.target.classList.contains('filter-btn')) {
+                        brandButtons.forEach(btn => btn.classList.remove('active'));
+                        event.target.classList.add('active');
+                        currentBrandFilter = event.target.dataset.brand;
+                        updateDisplay();
+                    }
+                });
+
+                priceSorter.addEventListener('change', function() {
+                    currentPriceSort = priceSorter.value;
+                    updateDisplay();
+                });
+
+                paginationList.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    if (event.target.tagName === 'A') {
+                        const pageNumber = parseInt(event.target.dataset.page);
+                        if (filterBar) {
+                            filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        if (pageNumber !== currentPage) {
+                            currentPage = pageNumber;
+                            setupPagination(filteredAndSortedCards.length);
+                            displayProductsForCurrentPage();
+                        }
+                    }
+                });
+
+                updateDisplay();
+            }
+        }
+
+
+        // ==========================================================
+        // === LOGIC CHO SẢN PHẨM KHUYẾN MÃI (PHẦN 5)
+        // ==========================================================
+        const discountContainer = document.querySelector('.discount-container');
+        if (discountContainer) {
+            const discountCards = Array.from(discountContainer.querySelectorAll('.discount-card'));
+
+            if (discountCards.length > 0) {
+                const discountPagination = document.getElementById('discount-pagination');
+                const discountSectionTitle = document.getElementById('discount-section-title');
+                const DISCOUNT_PER_PAGE = 3;
+                let discountCurrentPage = 1;
+
+                function setupDiscountPagination() {
+                    discountPagination.innerHTML = '';
+                    const pageCount = Math.ceil(discountCards.length / DISCOUNT_PER_PAGE);
+
+                    for (let i = 1; i <= pageCount; i++) {
+                        const pageItem = document.createElement('li');
+                        pageItem.className = 'page-item' + (i === discountCurrentPage ? ' active' : '');
+                        pageItem.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                        discountPagination.appendChild(pageItem);
+                    }
+                }
+
+                function displayDiscountPage() {
+                    // Xóa các thẻ hiện tại
+                     while (discountContainer.firstChild) {
+                        discountContainer.removeChild(discountContainer.firstChild);
+                    }
+                    const start = (discountCurrentPage - 1) * DISCOUNT_PER_PAGE;
+                    const end = start + DISCOUNT_PER_PAGE;
+                    const items = discountCards.slice(start, end);
+                    items.forEach(card => discountContainer.appendChild(card));
+                }
+
+                discountPagination.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (e.target.tagName === 'A') {
+                        const pageNum = parseInt(e.target.dataset.page);
+                        if (discountSectionTitle) {
+                            discountSectionTitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        if (pageNum !== discountCurrentPage) {
+                            discountCurrentPage = pageNum;
+                            setupDiscountPagination();
+                            displayDiscountPage();
+                        }
+                    }
+                });
+
+                setupDiscountPagination();
+                displayDiscountPage();
+            }
+        }
+
+        // ==========================================================
+        // === LOGIC CHO SẢN PHẨM SẮP KHUYẾN MÃI (PHẦN 7)
+        // ==========================================================
+        const upcomingDiscountContainer = document.getElementById('upcoming-discount-container');
+        if (upcomingDiscountContainer) {
+            const upcomingDiscountCards = Array.from(upcomingDiscountContainer.querySelectorAll('.discount-card'));
+
+            if (upcomingDiscountCards.length > 0) {
+                const upcomingPagination = document.getElementById('upcoming-pagination');
+                const upcomingSectionTitle = document.getElementById('upcoming-section-title');
+                const UPCOMING_PER_PAGE = 3;
+                let upcomingCurrentPage = 1;
+
+                function setupUpcomingPagination() {
+                    upcomingPagination.innerHTML = '';
+                    const pageCount = Math.ceil(upcomingDiscountCards.length / UPCOMING_PER_PAGE);
+
+                    for (let i = 1; i <= pageCount; i++) {
+                        const pageItem = document.createElement('li');
+                        pageItem.className = 'page-item' + (i === upcomingCurrentPage ? ' active' : '');
+                        pageItem.innerHTML = `<a class="page-link" href="#" data-page="${i}">${i}</a>`;
+                        upcomingPagination.appendChild(pageItem);
+                    }
+                }
+
+                function displayUpcomingPage() {
+                     // Xóa các thẻ hiện tại
+                    while (upcomingDiscountContainer.firstChild) {
+                        upcomingDiscountContainer.removeChild(upcomingDiscountContainer.firstChild);
+                    }
+                    const start = (upcomingCurrentPage - 1) * UPCOMING_PER_PAGE;
+                    const end = start + UPCOMING_PER_PAGE;
+                    const items = upcomingDiscountCards.slice(start, end);
+                    items.forEach(card => upcomingDiscountContainer.appendChild(card));
+                }
+
+                upcomingPagination.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (e.target.tagName === 'A') {
+                        const pageNum = parseInt(e.target.dataset.page);
+                        if (upcomingSectionTitle) {
+                            upcomingSectionTitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        if (pageNum !== upcomingCurrentPage) {
+                            upcomingCurrentPage = pageNum;
+                            setupUpcomingPagination();
+                            displayUpcomingPage();
+                        }
+                    }
+                });
+
+                setupUpcomingPagination();
+                displayUpcomingPage();
+            }
+        }
+
+
+        // ==========================================================
+        // === LOGIC CHO NÚT LÊN ĐẦU TRANG
+        // ==========================================================
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+        if (scrollToTopBtn) {
+            window.onscroll = function() {
+                if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                    scrollToTopBtn.style.display = "block";
+                } else {
+                    scrollToTopBtn.style.display = "none";
+                }
+            };
+        }
+    });
+
+    // Hàm này được gọi bởi nút HTML, nên để bên ngoài
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    </script>
+    <!-- Script tự ẩn sau 3 giây -->
+    <script>
+        // Chờ cho trang load xong
+        window.addEventListener('DOMContentLoaded', function() {
+            const alertBox = document.getElementById('alert-message');
+            if (alertBox) {
+                setTimeout(() => {
+                    alertBox.classList.remove('show');   // ẩn hiệu ứng Bootstrap
+                    alertBox.classList.add('fade');      // thêm hiệu ứng mờ dần
+                    setTimeout(() => alertBox.remove(), 300); // sau hiệu ứng thì xóa hẳn
+                }, 3000); // 3000ms = 3 giây
+            }
+        });
+    </script>
+    <!-- SIDEBAR ẨN BÊN TRÁI -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('userSidebar');
+            const openBtn = document.getElementById('openSidebarBtn');
+            const closeBtn = document.getElementById('closeSidebarBtn');
+
+            // Sự kiện khi nhấp vào nút mở
+            if (openBtn) {
+                openBtn.addEventListener('click', function() {
+                    sidebar.classList.add('open');
+                });
+            }
+            
+            // Sự kiện khi nhấp vào nút đóng
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    sidebar.classList.remove('open');
+                });
+            }
+
+            // Tùy chọn: Đóng sidebar khi nhấp ra ngoài
+            document.addEventListener('click', function(event) {
+                // Kiểm tra xem sidebar có đang mở không, và người dùng có nhấp ra ngoài sidebar và ngoài nút mở không
+                if (sidebar.classList.contains('open') && !sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const track = document.getElementById("voucher-track");
+            const tickets = track.querySelectorAll(".voucher-ticket");
+
+            const prevBtn = document.getElementById("voucher-prev");
+            const nextBtn = document.getElementById("voucher-next");
+
+            let index = 0;
+            const visibleCount = 3;
+            const total = tickets.length;
+
+            function updateView() {
+                const offset = -(index * (100 / visibleCount));
+                track.style.transform = `translateX(${offset}%)`;
+            }
+
+            nextBtn.addEventListener("click", () => {
+                index += 1;
+                if (index > total - visibleCount) {
+                    index = 0; // quay lại 3 vé đầu
+                }
+                updateView();
+            });
+
+            prevBtn.addEventListener("click", () => {
+                index -= 1;
+                if (index < 0) {
+                    index = total - visibleCount; // nhảy về cuối
+                }
+                updateView();
+            });
+
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let errorDiv = document.getElementById("error-message");
+        let successDiv = document.getElementById("success-message");
+
+        // Nếu có lỗi → popup
+        if (errorDiv) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: errorDiv.textContent,
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+
+        // Nếu có thành công → popup
+        if (successDiv) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: successDiv.textContent,
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+        }
+    });
+    </script>
+
+</body>
+</html>

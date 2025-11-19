@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="vi">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liên Hệ - Cửa Hàng Điện Thoại</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast.success {
+            background-color: #10b981;
+        }
+        .toast.error {
+            background-color: #ef4444;
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="min-h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+  <main class="container mx-auto px-4 py-8 max-w-6xl"><!-- Header -->
+   <header class="text-center mb-12">
+    <h1 id="page-title" class="text-4xl font-bold text-gray-800 mb-4">Liên Hệ Với Chúng Tôi</h1><!-- Store Slogans -->
+    <div class="mb-6">
+     <div class="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-lg font-semibold mb-3 shadow-lg">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg> "Công nghệ trong tầm tay - Uy tín là hàng đầu"
+     </div>
+     <div class="flex flex-wrap justify-center gap-4 text-sm"><span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">✨ Chính hãng 100%</span> <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">🚀 Giao hàng siêu tốc</span> <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">💎 Giá tốt nhất thị trường</span> <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full font-medium">🛡️ Bảo hành tận tâm</span>
+     </div>
+    </div>
+    <p class="text-lg text-gray-600 max-w-2xl mx-auto">Chúng tôi luôn sẵn sàng hỗ trợ bạn với mọi thắc mắc về sản phẩm điện thoại và dịch vụ của chúng tôi</p>
+   </header>
+   <div class="grid lg:grid-cols-2 gap-12"><!-- Contact Information -->
+    <section class="bg-white rounded-2xl shadow-lg p-8">
+     <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg> Thông Tin Cửa Hàng</h2>
+     <div class="space-y-6">
+      <div class="flex items-start">
+       <svg class="w-6 h-6 text-blue-600 mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+       </svg>
+       <div>
+        <h3 class="font-semibold text-gray-800 mb-1">Tên cửa hàng</h3>
+        <p id="store-name" class="text-gray-600">PhoneStore - Cửa Hàng Điện Thoại Uy Tín</p>
+       </div>
+      </div>
+      <div class="flex items-start">
+       <svg class="w-6 h-6 text-blue-600 mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+       </svg>
+       <div>
+        <h3 class="font-semibold text-gray-800 mb-1">Địa chỉ</h3>
+        <p id="store-address" class="text-gray-600">42 Triều Khúc, Thanh Xuân, Hà Nội</p>
+       </div>
+      </div>
+      <div class="flex items-start">
+       <svg class="w-6 h-6 text-blue-600 mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+       </svg>
+       <div>
+        <h3 class="font-semibold text-gray-800 mb-1">Số điện thoại</h3>
+        <p id="store-phone" class="text-gray-600">0901 234 567</p>
+       </div>
+      </div>
+      <div class="flex items-start">
+       <svg class="w-6 h-6 text-blue-600 mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+       </svg>
+       <div>
+        <h3 class="font-semibold text-gray-800 mb-1">Email</h3>
+        <p id="store-email" class="text-gray-600">contact@phonestore.vn</p>
+       </div>
+      </div>
+      <div class="flex items-start">
+       <svg class="w-6 h-6 text-blue-600 mt-1 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+       <div>
+        <h3 class="font-semibold text-gray-800 mb-1">Giờ mở cửa</h3>
+        <p class="text-gray-600">Thứ 2 - Thứ 7: 8:00 - 21:00<br>
+          Chủ nhật: 9:00 - 20:00</p>
+       </div>
+      </div>
+     </div><!-- Map Section -->
+     <div class="mt-8 pt-6 border-t border-gray-200">
+      <h3 class="font-semibold text-gray-800 mb-4 flex items-center">
+       <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+       </svg> Bản đồ vị trí</h3>
+      <div class="bg-gray-100 rounded-lg overflow-hidden">
+       <div id="interactive-map" class="w-full h-64 bg-gradient-to-br from-green-100 to-blue-100 relative cursor-pointer hover:from-green-200 hover:to-blue-200 transition-colors"><!-- Map Background -->
+        <svg class="absolute inset-0 w-full h-full opacity-20" viewbox="0 0 400 256"><!-- Street grid --> <defs>
+          <pattern id="grid" width="40" height="40" patternunits="userSpaceOnUse">
+           <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#94a3b8" stroke-width="1" />
+          </pattern>
+         </defs> <rect width="100%" height="100%" fill="url(#grid)" /> <!-- Main roads --> <path d="M0 80 L400 80" stroke="#64748b" stroke-width="3" opacity="0.6" /> <path d="M0 160 L400 160" stroke="#64748b" stroke-width="3" opacity="0.6" /> <path d="M120 0 L120 256" stroke="#64748b" stroke-width="3" opacity="0.6" /> <path d="M280 0 L280 256" stroke="#64748b" stroke-width="3" opacity="0.6" />
+        </svg><!-- Store location marker -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+         <div class="relative"><!-- Pulsing circle -->
+          <div class="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75 w-8 h-8"></div><!-- Main marker -->
+          <div class="relative bg-red-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+           <svg class="w-4 h-4 text-white" fill="currentColor" viewbox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+           </svg>
+          </div><!-- Address tooltip -->
+          <div class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded text-sm whitespace-nowrap">
+           42 Triều Khúc 
+           <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+          </div>
+         </div>
+        </div><!-- Nearby landmarks -->
+        <div class="absolute top-1/4 left-1/4 w-2 h-2 bg-green-500 rounded-full" title="Công viên"></div>
+        <div class="absolute top-3/4 right-1/4 w-2 h-2 bg-blue-500 rounded-full" title="Trường học"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-2 h-2 bg-yellow-500 rounded-full" title="Siêu thị"></div><!-- Click overlay -->
+        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-10 transition-all">
+         <div class="bg-white bg-opacity-90 px-4 py-2 rounded-lg shadow-lg opacity-0 hover:opacity-100 transition-opacity">
+          <p class="text-sm font-medium text-gray-800">📍 Nhấn để xem trên Google Maps</p>
+         </div>
+        </div>
+       </div><!-- Map controls -->
+       <div class="p-4 bg-white border-t">
+        <div class="flex items-center justify-between">
+         <div class="text-sm text-gray-600"><span class="font-medium">📍 42 Triều Khúc, Thanh Xuân, Hà Nội</span>
+         </div><button onclick="openGoogleMaps()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg> Mở Google Maps </button>
+        </div>
+        <div class="mt-3 flex items-center text-xs text-gray-500">
+         <div class="flex items-center mr-4">
+          <div class="w-2 h-2 bg-green-500 rounded-full mr-1"></div> Công viên
+         </div>
+         <div class="flex items-center mr-4">
+          <div class="w-2 h-2 bg-blue-500 rounded-full mr-1"></div> Trường học
+         </div>
+         <div class="flex items-center">
+          <div class="w-2 h-2 bg-yellow-500 rounded-full mr-1"></div> Siêu thị
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Social Media -->
+     <div class="mt-8 pt-6 border-t border-gray-200">
+      <h3 class="font-semibold text-gray-800 mb-4">Theo dõi chúng tôi</h3>
+      <div class="flex space-x-4"><a href="#" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+        </svg></a> <a href="#" class="w-10 h-10 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+        </svg></a> <a href="#" class="w-10 h-10 bg-pink-600 text-white rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z" />
+        </svg></a>
+      </div>
+     </div>
+    </section><!-- Contact Form -->
+    <section class="bg-white rounded-2xl shadow-lg p-8">
+     <h2 id="form-title" class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      </svg> Gửi Tin Nhắn Cho Chúng Tôi</h2>
+     <form id="contact-form" class="space-y-6">
+      <div class="grid md:grid-cols-2 gap-6">
+       <div><label for="name" class="block text-sm font-medium text-gray-700 mb-2">Họ và tên *</label> <input type="text" id="name" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Nhập họ và tên của bạn">
+       </div>
+       <div><label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Số điện thoại *</label> <input type="tel" id="phone" name="phone" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Nhập số điện thoại">
+       </div>
+      </div>
+      <div><label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label> <input type="email" id="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" placeholder="Nhập địa chỉ email">
+      </div>
+      <div><label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Chủ đề *</label> <select id="subject" name="subject" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"> <option value="">Chọn chủ đề</option> <option value="product-inquiry">Hỏi về sản phẩm</option> <option value="warranty">Bảo hành</option> <option value="complaint">Khiếu nại</option> <option value="suggestion">Góp ý</option> <option value="other">Khác</option> </select>
+      </div>
+      <div><label for="message" class="block text-sm font-medium text-gray-700 mb-2">Nội dung tin nhắn *</label> <textarea id="message" name="message" rows="5" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-vertical" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+      </div><button type="submit" id="submit-btn" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center"> <span id="submit-text">Gửi Tin Nhắn</span>
+       <div id="submit-spinner" class="loading-spinner ml-2 hidden"></div></button>
+     </form>
+     <div id="success-message" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+      <div class="flex items-center">
+       <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+       </svg>
+       <p id="success-text" class="text-green-800 font-medium">Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong vòng 24 giờ.</p>
+      </div>
+     </div>
+    </section>
+   </div><!-- Additional Info -->
+   <section class="mt-12 bg-white rounded-2xl shadow-lg p-8">
+    <div class="text-center mb-8">
+     <h2 class="text-2xl font-bold text-gray-800 mb-4">Tại Sao Chọn Chúng Tôi?</h2>
+     <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full inline-block font-bold text-lg shadow-lg">
+      🏆 "Khách hàng hài lòng - Thành công của chúng tôi!"
+     </div>
+     <p class="text-gray-600 mt-3 italic">"Hơn 10 năm kinh nghiệm - Hơn 50,000 khách hàng tin tưởng"</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8">
+     <div class="text-center">
+      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+       <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Sản Phẩm Chính Hãng</h3>
+      <p class="text-gray-600">100% điện thoại chính hãng, có tem bảo hành đầy đủ</p>
+     </div>
+     <div class="text-center">
+      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+       <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+       </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Giá Cả Cạnh Tranh</h3>
+      <p class="text-gray-600">Cam kết giá tốt nhất thị trường, hỗ trợ trả góp 0%</p>
+     </div>
+     <div class="text-center">
+      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+       <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z" />
+       </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2">Hỗ Trợ 24/7</h3>
+      <p class="text-gray-600">Đội ngũ kỹ thuật chuyên nghiệp, hỗ trợ khách hàng mọi lúc</p>
+     </div>
+    </div>
+   </section>
+  </main>
+  <script>
+        // Default configuration
+        const defaultConfig = {
+            store_name: "PhoneStore - Cửa Hàng Điện Thoại Uy Tín",
+            store_address: "42 Triều Khúc, Thanh Xuân, Hà Nội",
+            store_phone: "0901 234 567",
+            store_email: "contact@phonestore.vn",
+            form_title: "Gửi Tin Nhắn Cho Chúng Tôi",
+            success_message: "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong vòng 24 giờ.",
+            background_color: "#dbeafe",
+            surface_color: "#ffffff",
+            text_color: "#1f2937",
+            primary_action_color: "#2563eb",
+            secondary_action_color: "#6b7280",
+            font_family: "Inter",
+            font_size: 16
+        };
+
+        let contactData = [];
+        let recordCount = 0;
+
+        // Data handler for SDK
+        const dataHandler = {
+            onDataChanged(data) {
+                contactData = data;
+                recordCount = data.length;
+            }
+        };
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Handle form submission
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            if (recordCount >= 999) {
+                showToast('Đã đạt giới hạn tối đa 999 tin nhắn. Vui lòng liên hệ trực tiếp qua điện thoại.', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.textContent = 'Đang gửi...';
+            submitSpinner.classList.remove('hidden');
+
+            const formData = new FormData(event.target);
+            const contactMessage = {
+                id: Date.now().toString(),
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                subject: formData.get('subject'),
+                message: formData.get('message'),
+                created_at: new Date().toISOString()
+            };
+
+            try {
+                const result = await window.dataSdk.create(contactMessage);
+                
+                if (result.isOk) {
+                    // Show success message
+                    document.getElementById('success-message').classList.remove('hidden');
+                    event.target.reset();
+                    showToast('Tin nhắn đã được gửi thành công!', 'success');
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => {
+                        document.getElementById('success-message').classList.add('hidden');
+                    }, 5000);
+                } else {
+                    showToast('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.', 'error');
+                }
+            } catch (error) {
+                showToast('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.', 'error');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.textContent = 'Gửi Tin Nhắn';
+                submitSpinner.classList.add('hidden');
+            }
+        }
+
+        // Update UI based on config
+        async function onConfigChange(config) {
+            const baseFont = config.font_family || defaultConfig.font_family;
+            const baseFontStack = 'system-ui, -apple-system, sans-serif';
+            const baseSize = config.font_size || defaultConfig.font_size;
+            
+            // Update colors
+            document.body.style.background = `linear-gradient(to bottom right, ${config.background_color || defaultConfig.background_color}, #c7d2fe)`;
+            
+            const surfaces = document.querySelectorAll('section, .bg-white');
+            surfaces.forEach(surface => {
+                surface.style.backgroundColor = config.surface_color || defaultConfig.surface_color;
+            });
+            
+            const textElements = document.querySelectorAll('h1, h2, h3, p, label, input, textarea, select, button');
+            textElements.forEach(element => {
+                element.style.color = config.text_color || defaultConfig.text_color;
+                element.style.fontFamily = `${baseFont}, ${baseFontStack}`;
+            });
+            
+            // Update font sizes
+            document.getElementById('page-title').style.fontSize = `${baseSize * 2.25}px`;
+            document.querySelectorAll('h2').forEach(h2 => {
+                h2.style.fontSize = `${baseSize * 1.5}px`;
+            });
+            document.querySelectorAll('h3').forEach(h3 => {
+                h3.style.fontSize = `${baseSize * 1.125}px`;
+            });
+            document.querySelectorAll('p, input, textarea, select, button').forEach(element => {
+                element.style.fontSize = `${baseSize}px`;
+            });
+            document.querySelectorAll('label').forEach(label => {
+                label.style.fontSize = `${baseSize * 0.875}px`;
+            });
+            
+            // Update primary action color
+            const primaryButtons = document.querySelectorAll('#submit-btn, .bg-blue-600');
+            primaryButtons.forEach(button => {
+                button.style.backgroundColor = config.primary_action_color || defaultConfig.primary_action_color;
+            });
+            
+            // Update text content
+            document.getElementById('store-name').textContent = config.store_name || defaultConfig.store_name;
+            document.getElementById('store-address').textContent = config.store_address || defaultConfig.store_address;
+            document.getElementById('store-phone').textContent = config.store_phone || defaultConfig.store_phone;
+            document.getElementById('store-email').textContent = config.store_email || defaultConfig.store_email;
+            document.getElementById('form-title').innerHTML = `
+                <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                ${config.form_title || defaultConfig.form_title}
+            `;
+            document.getElementById('success-text').textContent = config.success_message || defaultConfig.success_message;
+        }
+
+        // Initialize the application
+        async function init() {
+            // Initialize Data SDK
+            if (window.dataSdk) {
+                const initResult = await window.dataSdk.init(dataHandler);
+                if (!initResult.isOk) {
+                    console.error("Failed to initialize data SDK");
+                }
+            }
+
+            // Initialize Element SDK
+            if (window.elementSdk) {
+                await window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange,
+                    mapToCapabilities: (config) => ({
+                        recolorables: [
+                            {
+                                get: () => config.background_color || defaultConfig.background_color,
+                                set: (value) => {
+                                    config.background_color = value;
+                                    window.elementSdk.setConfig({ background_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.surface_color || defaultConfig.surface_color,
+                                set: (value) => {
+                                    config.surface_color = value;
+                                    window.elementSdk.setConfig({ surface_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.text_color || defaultConfig.text_color,
+                                set: (value) => {
+                                    config.text_color = value;
+                                    window.elementSdk.setConfig({ text_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                                set: (value) => {
+                                    config.primary_action_color = value;
+                                    window.elementSdk.setConfig({ primary_action_color: value });
+                                }
+                            }
+                        ],
+                        borderables: [],
+                        fontEditable: {
+                            get: () => config.font_family || defaultConfig.font_family,
+                            set: (value) => {
+                                config.font_family = value;
+                                window.elementSdk.setConfig({ font_family: value });
+                            }
+                        },
+                        fontSizeable: {
+                            get: () => config.font_size || defaultConfig.font_size,
+                            set: (value) => {
+                                config.font_size = value;
+                                window.elementSdk.setConfig({ font_size: value });
+                            }
+                        }
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ["store_name", config.store_name || defaultConfig.store_name],
+                        ["store_address", config.store_address || defaultConfig.store_address],
+                        ["store_phone", config.store_phone || defaultConfig.store_phone],
+                        ["store_email", config.store_email || defaultConfig.store_email],
+                        ["form_title", config.form_title || defaultConfig.form_title],
+                        ["success_message", config.success_message || defaultConfig.success_message]
+                    ])
+                });
+            }
+
+            // Add form event listener
+            document.getElementById('contact-form').addEventListener('submit', handleFormSubmit);
+
+            // Initial render
+            await onConfigChange(defaultConfig);
+        }
+
+        // Open Google Maps function
+        function openGoogleMaps() {
+            const address = encodeURIComponent("42 Triều Khúc, Thanh Xuân, Hà Nội");
+            const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
+            window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        // Add click event to interactive map
+        document.addEventListener('DOMContentLoaded', function() {
+            const interactiveMap = document.getElementById('interactive-map');
+            if (interactiveMap) {
+                interactiveMap.addEventListener('click', openGoogleMaps);
+            }
+        });
+
+        // Initialize when page loads
+        init();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'995b6f5bd2430f30',t:'MTc2MTY2NTAxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

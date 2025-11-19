@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán - Mua Điện Thoại</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass-effect { background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); border-radius: 1rem; }
+        .product-card:hover { transform: translateY(-5px); transition: 0.3s; }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* === MODAL STYLES === */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: #f0f2f5; border-radius: 1rem; padding: 2rem;
+            width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        /* === RE-STYLED COUPON FOR MODAL === */
+        .coupon-card {
+            cursor: pointer;
+            position: relative; border-radius: 12px;
+            background: linear-gradient(135deg, #6a82fb, #fc5c7d);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: white; transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .coupon-card:hover { transform: translateY(-4px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15); }
+        .coupon-main { padding: 15px 20px; display: flex; align-items: center; gap: 15px; }
+        .coupon-discount-value { font-size: 28px; font-weight: 700; line-height: 1; }
+        .coupon-info { flex-grow: 1; }
+        .coupon-code { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+        .coupon-description { font-size: 12px; opacity: 0.9; }
+        .coupon-badge { position: absolute; top: 10px; right: 15px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; background: rgba(255, 255, 255, 0.2); }
+        .coupon-footer { display: flex; justify-content: space-between; align-items: flex-end; padding: 10px 20px 12px 20px; margin: 0 10px; border-top: 1px dashed rgba(255, 255, 255, 0.4); }
+        .coupon-details, .coupon-meta { font-size: 11px; line-height: 1.5; }
+        .coupon-details div { margin-bottom: 2px; }
+        .coupon-meta { text-align: right; }
+        .coupon-meta .status { font-weight: 700; text-transform: capitalize; }
+        .coupon-card.permanently-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #cccccc;
+        }
+        .coupon-card.temp-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #a8b3ff, #ff9bb2);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-purple-600 to-blue-500 min-h-screen font-sans">
+
+<div class="max-w-7xl mx-auto py-12 px-6">
+
+    <!-- HEADER -->
+    <header class="mb-8 text-center text-white">
+        <h1 class="text-3xl font-bold">Thanh Toán Đơn Hàng</h1>
+        <p class="text-white/80 mt-1">Xác nhận thông tin và sản phẩm trước khi mua</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- LEFT & MIDDLE: DANH SÁCH SẢN PHẨM (chiếm 2 cột) -->
+        <div class="lg:col-span-2 space-y-6">
+            <div th:each="phone : ${phonesInOrder}"
+                 class="glass-effect p-6 flex flex-col sm:flex-row items-center gap-4 product-card"
+                 th:data-id="${phone.PhoneId}"
+                 th:data-stock="${phone.StockPhone}"
+                 th:data-original-price="${phone.PricePhone}"
+                 th:data-promo-price="${phone.StatusDiscountPhone == 'active' ? phone.FinalPrice : phone.PricePhone}"
+                 th:data-promo-qty="${phone.StatusDiscountPhone == 'active' and phone.QuantityPhone != null ? phone.QuantityPhone : 0}"
+                 th:data-is-promo="${phone.StatusDiscountPhone == 'active'}">
+
+                <img th:src="${phone.ImageUrlPhoneId}" alt="Ảnh sản phẩm" class="w-32 h-32 object-cover rounded-lg shadow-md">
+
+                <div class="flex-1 space-y-2 w-full">
+                    <h2 class="text-xl font-bold text-white" th:text="${phone.NamePhoneId}"></h2>
+                    <p class="text-white/80">Tồn kho: <span th:text="${phone.StockPhone}"></span></p>
+                    <div>
+                        <span th:if="${phone.StatusDiscountPhone == 'active'}" class="line-through text-white/60 mr-2"
+                              th:text="${#numbers.formatInteger(phone.PricePhone,0,'COMMA')} + ' VNĐ'"></span>
+                        <span class="text-yellow-300 font-bold text-lg"
+                              th:text="${phone.StatusDiscountPhone == 'active' ? #numbers.formatInteger(phone.FinalPrice,0,'COMMA') : #numbers.formatInteger(phone.PricePhone,0,'COMMA')} + ' VNĐ'"></span>
+                    </div>
+
+                    <!-- QUANTITY -->
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="px-3 py-1 bg-white/20 text-white rounded btn-decrease">-</button>
+                        <input type="number" min="1" th:max="${phone.StockPhone}" value="1"
+                               class="w-16 text-center rounded bg-white/20 text-white border-none quantity-input"/>
+                        <button type="button" class="px-3 py-1 bg-white/20 text-white rounded btn-increase">+</button>
+                    </div>
+
+                    <!-- VOUCHER SECTION -->
+                    <div class="pt-3">
+                         <button type="button" class="btn-open-voucher-modal w-full sm:w-auto text-sm py-2 px-4 rounded-lg bg-white/20 hover:bg-white/30 transition text-white">
+                            🎁 Chọn Voucher
+                        </button>
+                        <div class="applied-voucher-display mt-2 text-sm p-2 bg-green-500/20 text-green-200 rounded-lg" style="display: none;">
+                            <!-- Content generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: THÔNG TIN & THANH TOÁN (chiếm 1 cột) -->
+        <div class="lg:col-span-1 glass-effect p-6 space-y-6 self-start">
+            <h2 class="text-2xl font-bold text-white">Thông Tin Khách Hàng</h2>
+            <div class="space-y-2 text-white/80 text-sm">
+                <p>Tên: <span th:text="${user.nameUser}"></span></p>
+                <p>Email: <span th:text="${user.gmailUser}"></span></p>
+                <p>SĐT: <span th:text="${user.phoneNumber}"></span></p>
+                <p>Địa chỉ: <span th:text="${user.address}"></span></p>
+            </div>
+            <hr class="border-white/20">
+            <h2 class="text-2xl font-bold text-white">Tổng Thanh Toán</h2>
+            <div class="space-y-2 text-white/90">
+                <div class="flex justify-between">
+                    <span>Tạm tính:</span>
+                    <span id="subtotal">0 VNĐ</span>
+                </div>
+                <div class="flex justify-between text-green-300">
+                    <span>Giảm giá Voucher:</span>
+                    <span id="voucher-discount">- 0 VNĐ</span>
+                </div>
+            </div>
+            <hr class="border-white/20">
+            <div class="flex justify-between font-bold text-xl text-yellow-300">
+                <span>Tổng cộng:</span>
+                <span id="total">0 VNĐ</span>
+            </div>
+            <div class="mt-4">
+                <button id="btn-confirm-purchase" 
+                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-4 rounded-lg transition duration-300 shadow-lg">
+                    Xác nhận Mua hàng
+                </button>
+                <a th:href="@{/orders/carts_list_User_view/{userId}(userId=${user.idUser})}" class="block text-center w-full bg-white/20 text-white py-3 rounded-xl">← Quay lại</a>
+            </div>
+           
+        </div>
+    </div>
+</div>
+
+<!-- VOUCHER MODAL -->
+<div id="voucherModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold text-gray-800">Chọn một mã giảm giá</h3>
+            <button id="closeModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+        </div>
+        <div id="no-voucher-option" class="p-4 text-center bg-gray-200 text-gray-700 rounded-lg cursor-pointer hover:bg-gray-300 mb-4">Không sử dụng voucher</div>
+       <!-- Loop Vouchers Here -->
+        <div th:each="vc : ${userVouchersinformation}" class="mb-3">
+            <div class="coupon-card" 
+                th:data-voucher-id="${vc.id}"
+                th:classappend="${vc.isUsed or vc.status != 'active'} ? 'permanently-disabled' : ''">
+                
+                <div class="coupon-badge" th:text="${vc.isUsed ? 'Đã dùng' : 'Chưa dùng'}"></div>
+                <div class="coupon-main">
+                    <div class="coupon-discount"><div class="coupon-discount-value" th:text="${vc.discountPercent} + '%'"></div></div>
+                    <div class="coupon-info">
+                        <strong class="coupon-code" th:text="${vc.code}"></strong>
+                        <div class="coupon-description" th:text="${vc.description}"></div>
+                    </div>
+                </div>
+                <div class="coupon-footer">
+                    <div class="coupon-details">
+                        <div>• Đơn tối thiểu: <span th:text="${#numbers.formatInteger(vc.minOrderValue, 0, 'COMMA')}"></span></div>
+                        <div>• Giảm tối đa: <span th:text="${#numbers.formatInteger(vc.maxDiscount, 0, 'COMMA')}"></span></div>
+                        <div>• Hạn dùng: <span th:text="${vc.expiredAt}"></span></div>
+                    </div>
+                    <div class="coupon-meta">
+                        <div>Còn: <b th:text="${vc.quantity}"></b></div>
+                        <div class="status" th:text="${vc.status}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', () => {
+    // === DATA & STATE ===
+    const vouchers = /*[[${userVouchersinformation}]]*/ [];
+    const phoneIds = /*[[${phonesInOrder.![PhoneId]}]]*/ [];
+    let appliedVouchers = {}; // { productId: voucherId }
+    phoneIds.forEach(id => appliedVouchers[id] = null);
+    let currentProductIdForModal = null;
+
+    // === DOM ELEMENTS ===
+    const subtotalEl = document.getElementById('subtotal');
+    const voucherDiscountEl = document.getElementById('voucher-discount');
+    const totalEl = document.getElementById('total');
+    const quantitiesInput = document.getElementById('quantities');
+    const voucherMappingsInput = document.getElementById('voucherMappings');
+    const voucherModal = document.getElementById('voucherModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const noVoucherOption = document.getElementById('no-voucher-option'); 
+    
+    // === UTILITY FUNCTIONS ===
+    function formatMoney(n) { return n.toLocaleString('vi-VN') + ' VNĐ'; }
+
+    // === CORE LOGIC ===
+    function updateTotals() {
+        let subtotal = 0;
+        let totalVoucherDiscount = 0;
+        let quantities = [];
+        
+        document.querySelectorAll('.product-card').forEach(card => {
+            const id = card.dataset.id;
+            const selectedQty = parseInt(card.querySelector('.quantity-input').value) || 1;
+            quantities.push(selectedQty);
+
+            const isPromo = card.dataset.isPromo === 'true';
+            const promoQty = parseInt(card.dataset.promoQty || 0);
+            const originalPrice = parseFloat(card.dataset.originalPrice || 0);
+            const promoPrice = parseFloat(card.dataset.promoPrice || 0);
+
+            let itemBaseTotal = (isPromo && promoQty > 0 && selectedQty > promoQty)
+                ? (promoQty * promoPrice) + ((selectedQty - promoQty) * originalPrice)
+                : selectedQty * (isPromo ? promoPrice : originalPrice);
+            subtotal += itemBaseTotal;
+
+            const appliedVoucherId = appliedVouchers[id];
+            const voucherDisplay = card.querySelector('.applied-voucher-display');
+            
+            if (appliedVoucherId) {
+                const voucher = vouchers.find(v => v.id == appliedVoucherId);
+                
+                // Điều kiện áp dụng: voucher tồn tại và tổng tiền dòng sản phẩm >= giá trị đơn tối thiểu
+                if (voucher && itemBaseTotal >= voucher.minOrderValue) {
+                    
+                    // =================== LOGIC MỚI ĐƯỢC THAY THẾ TẠI ĐÂY ===================
+                    // Bắt đầu khối logic tính toán giống hệt file `phone.html`
+                    
+                    let discountAmount = 0;
+                    
+                    // Nếu là voucher loại 'product', chỉ giảm giá trên giá của MỘT sản phẩm
+                    // Ví dụ: Mua 3 cái, voucher 'product' 10%, chỉ giảm 10% của giá 1 cái.
+                    if (voucher.voucherType === 'product') {
+                        const singleItemPrice = isPromo ? promoPrice : originalPrice;
+                        discountAmount = singleItemPrice * (voucher.discountPercent / 100);
+                    } else { 
+                        // Nếu là voucher loại 'order' (hoặc loại khác), giảm giá trên TỔNG giá trị của dòng sản phẩm đó
+                        // Ví dụ: Mua 3 cái, voucher 'order' 10%, sẽ giảm 10% của (giá * 3).
+                        discountAmount = itemBaseTotal * (voucher.discountPercent / 100);
+                    }
+                    
+                    // Sau khi tính, luôn áp dụng mức giảm giá tối đa
+                    const finalDiscountForThisItem = Math.min(discountAmount, voucher.maxDiscount);
+                    
+                    // Kết thúc khối logic tính toán mới
+                    // =================== KẾT THÚC LOGIC MỚI =====================
+
+                    totalVoucherDiscount += finalDiscountForThisItem;
+                    voucherDisplay.innerHTML = `✅ Đã áp dụng <b>${voucher.code}</b>. Giảm: <b>${formatMoney(finalDiscountForThisItem)}</b>`;
+                    voucherDisplay.style.display = 'block';
+
+                } else {
+                    // Nếu không đủ điều kiện (ví dụ: thay đổi số lượng làm giảm tổng tiền), tự động gỡ voucher
+                    appliedVouchers[id] = null; 
+                    voucherDisplay.style.display = 'none';
+                }
+            } else {
+                voucherDisplay.style.display = 'none';
+            }
+        });
+
+        const finalTotal = subtotal - totalVoucherDiscount;
+        subtotalEl.textContent = formatMoney(subtotal);
+        voucherDiscountEl.textContent = `- ${formatMoney(totalVoucherDiscount)}`;
+        totalEl.textContent = formatMoney(finalTotal);
+
+        // Cập nhật các input ẩn để gửi form (nếu cần)
+        if (quantitiesInput) quantitiesInput.value = quantities.join(',');
+        if (voucherMappingsInput) voucherMappingsInput.value = Object.entries(appliedVouchers).map(([pid, vid]) => `${pid}:${vid || 'none'}`).join(',');
+    }
+    
+    // === MODAL HANDLING ===
+    function openModal(productId) {
+        currentProductIdForModal = productId;
+        const usedVoucherIds = Object.values(appliedVouchers).filter(vid => vid !== null && vid !== appliedVouchers[productId]);
+
+        document.querySelectorAll('#voucherModal .coupon-card').forEach(card => {
+            const voucherId = card.dataset.voucherId;
+            const isPermanentlyDisabled = card.classList.contains('permanently-disabled');
+
+            if (!isPermanentlyDisabled) {
+                if (usedVoucherIds.includes(voucherId)) {
+                    card.classList.add('temp-disabled'); 
+                } else {
+                    card.classList.remove('temp-disabled');
+                }
+            }
+        });
+        voucherModal.classList.add('active');
+    }
+
+    function closeModal() {
+        voucherModal.classList.remove('active');
+        currentProductIdForModal = null;
+    }
+
+    // === EVENT LISTENERS ===
+    document.querySelectorAll('.btn-open-voucher-modal').forEach(btn => {
+        btn.addEventListener('click', (e) => openModal(e.target.closest('.product-card').dataset.id));
+    });
+    closeModalBtn.addEventListener('click', closeModal);
+    voucherModal.addEventListener('click', (e) => { if(e.target === voucherModal) closeModal(); });
+
+    document.querySelectorAll('#voucherModal .coupon-card').forEach(card => {
+        card.addEventListener('click', () => {
+            if(card.classList.contains('permanently-disabled') || card.classList.contains('temp-disabled')) return;
+            
+            const voucherId = card.dataset.voucherId;
+            if (currentProductIdForModal) {
+                appliedVouchers[currentProductIdForModal] = voucherId;
+                updateTotals();
+                closeModal();
+            }
+        });
+    });
+
+    if (noVoucherOption) {
+        noVoucherOption.addEventListener('click', () => {
+            if (currentProductIdForModal) {
+                appliedVouchers[currentProductIdForModal] = null;
+                updateTotals();
+                closeModal();
+            }
+        });
+    }
+
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.querySelector('.btn-increase').addEventListener('click', () => {
+            const input = card.querySelector('.quantity-input');
+            const max = parseInt(input.getAttribute('max'));
+            if (parseInt(input.value) < max) {
+                input.value = parseInt(input.value) + 1;
+                updateTotals();
+            }
+        });
+        card.querySelector('.btn-decrease').addEventListener('click', () => {
+            const input = card.querySelector('.quantity-input');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+                updateTotals();
+            }
+        });
+        card.querySelector('.quantity-input').addEventListener('input', updateTotals);
+    });
+    const confirmPurchaseBtn = document.getElementById('btn-confirm-purchase');
+    if (confirmPurchaseBtn) {
+        confirmPurchaseBtn.addEventListener('click', () => {
+            // Vô hiệu hóa nút để tránh nhấn nhiều lần
+            confirmPurchaseBtn.disabled = true;
+            confirmPurchaseBtn.textContent = 'Đang xử lý...';
+
+            // 1. Tạo một thẻ <form> ẩn trong bộ nhớ
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/orders/confirmMultiple'; // Trỏ đến endpoint của bạn
+
+            // 2. Lặp qua từng sản phẩm để tạo các input ẩn
+            const productCards = document.querySelectorAll('.product-card');
+            if (productCards.length === 0) {
+                alert('Không có sản phẩm nào để thanh toán.');
+                confirmPurchaseBtn.disabled = false;
+                confirmPurchaseBtn.textContent = 'Xác nhận Mua hàng';
+                return;
+            }
+
+            productCards.forEach(card => {
+                const phoneId = card.dataset.id;
+                const quantity = card.querySelector('.quantity-input').value;
+                // Lấy voucherId từ state, nếu không có thì là null
+                const voucherId = appliedVouchers[phoneId] || ''; 
+
+                // Tạo các input ẩn với **cùng tên** để Spring Boot nhận diện là mảng
+                const phoneIdInput = document.createElement('input');
+                phoneIdInput.type = 'hidden';
+                phoneIdInput.name = 'phoneId'; // Tên phải giống hệt nhau
+                phoneIdInput.value = phoneId;
+                form.appendChild(phoneIdInput);
+
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'hidden';
+                quantityInput.name = 'quantity'; // Tên phải giống hệt nhau
+                quantityInput.value = quantity;
+                form.appendChild(quantityInput);
+
+                const voucherIdInput = document.createElement('input');
+                voucherIdInput.type = 'hidden';
+                voucherIdInput.name = 'voucherId'; // Tên phải giống hệt nhau
+                voucherIdInput.value = voucherId || ''; // Gửi chuỗi rỗng nếu không có voucher
+                form.appendChild(voucherIdInput);
+            });
+
+            // 3. Thêm form vào trang và tự động submit
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    updateTotals();
+});
+</script>
+
+</body>
+</html>

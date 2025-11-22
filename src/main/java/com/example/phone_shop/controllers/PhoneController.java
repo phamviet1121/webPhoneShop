@@ -765,5 +765,107 @@ public class PhoneController {
     public String salesByProduct() {
         return "admins/salesByProduct"; // Thymeleaf tự tìm admins/salesByProduct.html
     }
+    @GetMapping("/api/statistics/RevenueForProduct")
+    @ResponseBody
+    public Map<String, Object> getWeeklyRevenueForProduct(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy 7 ngày gần nhất
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        // Gọi service rút gọn chỉ lấy labels và doanh thu
+        return statisticalService.getRevenueByDayForProduct(start, end);
+    }
+    @GetMapping("/salesChartProduct")
+    public String salesChartProduct() {
+        return "admins/salesChartProduct"; // Thymeleaf tự tìm admins/salesByProduct.html
+    }
+
+    @GetMapping("/api/statistics/Top5RevenueForProduct")
+    @ResponseBody
+    public Map<String, Object> getWeeklyTop5RevenueForProduct(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy 7 ngày gần nhất
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        // Gọi service rút gọn chỉ lấy labels và doanh thu
+        return statisticalService.getTop5ProductsByRevenue(start, end);
+    }
+    @GetMapping("/salesTop5ChartProduct")
+    public String salesTop5ChartProduct() {
+        return "admins/salesTop5ChartProduct";
+    }
+
+    @GetMapping("/api/statistics/Top5BestSellingForProduct")
+    @ResponseBody
+    public Map<String, Object> getWeeklyTop5BestSellingForProduct(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy 7 ngày gần nhất
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        // Gọi service rút gọn chỉ lấy labels và doanh thu
+        return statisticalService.getTop5BestSellingProducts(start, end);
+    }
+    @GetMapping("/salesTop5BestSellingProduct")
+    public String salesTop5BestSellingProduct() {
+        return "admins/salesTop5BestSellingProduct";
+    }
+
+    @GetMapping("/api/statistics/Top5BestSellingVoucher")
+    @ResponseBody
+    public Map<String, Object> getWeeklyTop5BestSellingVoucher(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy 7 ngày gần nhất
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        return statisticalService.getCountVoucherUsageByUser(start, end);
+    }
+    @GetMapping("/salesTop5BestSellingVoucher")
+    public String salesTop5BestSellingvoucher() {
+        return "admins/salesTop5BestSellingVoucher";
+    }
 
 }

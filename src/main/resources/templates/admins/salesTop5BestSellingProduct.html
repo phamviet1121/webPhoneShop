@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 5 sản phẩm bán chạy</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header-section {
+            flex-shrink: 0;
+            text-align: center;
+            padding: 15px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            z-index: 20;
+        }
+        
+        h2 { margin: 0 0 10px 0; font-size: 18px; color: #333; }
+
+        form input {
+            padding: 6px; border: 1px solid #ddd; border-radius: 4px; width: 110px;
+        }
+        form button {
+            padding: 7px 15px; background: #36A2EB; color: #fff; border: none; border-radius: 4px; cursor: pointer;
+        }
+
+        .chart-wrapper {
+            flex-grow: 1;
+            width: 100%;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            -ms-overflow-style: none;  /* IE và Edge cũ */
+            scrollbar-width: none;  /* Firefox */
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+        }
+        .chart-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            min-height: 450px; /* Tăng chiều cao để chứa đủ các mục 0% nếu chúng xếp chồng nhau */
+            height: 60vh;
+            margin: 0 auto;
+        }
+
+        #totalRevenueBox {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #36A2EB;
+            color: white;
+            padding: 7px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-section">
+    <h2>TOP 5 Sản Phẩm Bán Chạy Nhất</h2>
+    <form id="dateForm">
+        Từ: <input type="date" id="startDate" name="startDate">
+        Đến: <input type="date" id="endDate" name="endDate">
+        <button type="submit">Xem</button>
+    </form>
+</div>
+
+<div class="chart-wrapper">
+    <div class="chart-container">
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+
+<div id="totalRevenueBox">Đang tải...</div>
+
+<script>
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    let pieChart;
+
+    // --- CẤU HÌNH NGÀY ---
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 6);
+    document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+
+    function fetchTop5Products(start, end) {
+        const url = `/phones/api/statistics/Top5BestSellingForProduct?startDate=${start}&endDate=${end}`;
+        
+        // Thay fetch bằng mockFetch để test logic
+        fetch(url) 
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('totalRevenueBox').innerText = 
+                    'Tổng: ' + data.totalRevenue.toLocaleString('vi-VN');
+                
+                // Kiểm tra nếu tổng doanh thu = 0
+                if (data.totalRevenue === 0) {
+                    drawEmptyState(data.labels);
+                } else {
+                    renderChart(data);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('totalRevenueBox').innerText = "Không có dữ liệu";
+            });
+    }
+
+    // --- HÀM VẼ TRẠNG THÁI TRỐNG (HÌNH TRÒN TRẮNG) ---
+    function drawEmptyState(labels) {
+        if(pieChart) pieChart.destroy();
+
+        // Chúng ta vẽ một biểu đồ tròn dummy màu trắng/xám nhạt
+        pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ["Chưa có dữ liệu"],
+                datasets: [{
+                    data: [1], // Giá trị giả để vẽ tròn
+                    backgroundColor: ["#f5f5f5"], // Màu xám rất nhạt (gần như trắng)
+                    borderColor: "#e0e0e0", // Viền nhẹ để nhận biết
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false } // Tắt tooltip
+                }
+            },
+            plugins: [{
+                id: 'emptyLabel',
+                afterDraw: (chart) => {
+                    const { ctx, width, height } = chart;
+                    ctx.save();
+                    ctx.font = "bold 14px Arial";
+                    ctx.fillStyle = "#999";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("Chưa có đơn hàng", width / 2, height / 2);
+                    
+                    ctx.restore();
+                }
+            }]
+        });
+    }
+
+    function getLineBreakText(ctx, text, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const width = ctx.measureText(currentLine + " " + word).width;
+            if (width < maxWidth) {
+                currentLine += " " + word;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
+        }
+        lines.push(currentLine);
+        return lines;
+    }
+
+    function renderChart(data) {
+        if(pieChart) pieChart.destroy();
+
+        const isMobile = window.innerWidth < 600;
+        const chartRadius = isMobile ? '35%' : '40%'; 
+        const elbowLength = isMobile ? 15 : 30;
+        const lineLength = isMobile ? 15 : 25;
+        const fontSize = isMobile ? 11 : 12;
+
+        pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.revenueByDay,
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                rotation: -30,
+                radius: chartRadius,
+                layout: { padding: 20 },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
+            },
+            plugins: [{
+                id: 'smartLabels',
+                afterDraw: (chart) => {
+                    const { ctx, chartArea: { width, height, top, left } } = chart;
+                    const centerX = (left + width) / 2;
+                    const centerY = (top + height) / 2;
+                    
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.textBaseline = 'middle';
+
+                    const meta = chart.getDatasetMeta(0);
+                    const outerRadius = meta.data[0].outerRadius; 
+                    
+                    const leftLabels = [], rightLabels = [];
+
+                    meta.data.forEach((el, index) => {
+                        // LƯU Ý: Đã bỏ điều kiện ẩn mục 0%
+                        if (meta.data[index].hidden) return; 
+
+                        const center = el.getCenterPoint();
+                        const angle = el.startAngle + (el.endAngle - el.startAngle) / 2;
+                        
+                        // Nếu item là 0%, angle sẽ trùng item trước.
+                        // Ta cần logic chống đè tốt để đẩy nó ra.
+                        
+                        const isRight = Math.cos(angle) >= 0;
+
+                        const startX = centerX + Math.cos(angle) * outerRadius;
+                        const startY = centerY + Math.sin(angle) * outerRadius;
+                        
+                        const elbowX = centerX + Math.cos(angle) * (outerRadius + elbowLength);
+                        const elbowY = centerY + Math.sin(angle) * (outerRadius + elbowLength);
+
+                        const maxTextWidth = isMobile ? 90 : 130; 
+                        const nameLines = getLineBreakText(ctx, data.labels[index], maxTextWidth);
+                        const valText = `${data.revenueByDay[index].toLocaleString('vi-VN')} (${data.proportions[index]}%)`;
+                        
+                        const lineHeight = fontSize + 4;
+                        const blockHeight = (nameLines.length * lineHeight) + lineHeight;
+
+                        const labelObj = {
+                            index, lines: nameLines, valText,
+                            color: chart.data.datasets[0].backgroundColor[index],
+                            startX, startY,
+                            elbowX, elbowY,
+                            finalY: elbowY,
+                            blockHeight, isRight
+                        };
+
+                        if (isRight) rightLabels.push(labelObj);
+                        else leftLabels.push(labelObj);
+                    });
+
+                    // Logic sắp xếp: Nếu nhiều item 0% cùng vị trí, chúng sẽ bị xếp chồng đè nhau
+                    // Hàm preventCollision sẽ tách chúng ra dọc theo trục Y
+                    const preventCollision = (items) => {
+                        items.sort((a, b) => a.elbowY - b.elbowY);
+                        for (let i = 0; i < items.length; i++) {
+                            const curr = items[i];
+                            
+                            // Giới hạn trên để không đè Header
+                            if (curr.finalY < top + 20) curr.finalY = top + 20;
+                            // Giới hạn dưới
+                            if (curr.finalY > height - 30) curr.finalY = height - 30;
+
+                            if (i > 0) {
+                                const prev = items[i - 1];
+                                const prevBot = prev.finalY + (prev.blockHeight / 2);
+                                const currTop = curr.finalY - (curr.blockHeight / 2);
+                                
+                                // Nếu đè nhau, đẩy xuống
+                                if (currTop < prevBot + 5) {
+                                    curr.finalY = prevBot + 5 + (curr.blockHeight / 2);
+                                }
+                            }
+                        }
+                    };
+
+                    preventCollision(rightLabels);
+                    preventCollision(leftLabels);
+
+                    const draw = (items, side) => {
+                        items.forEach(lbl => {
+                            const textX = lbl.elbowX + (lineLength * side);
+                            
+                            ctx.beginPath();
+                            ctx.strokeStyle = lbl.color;
+                            ctx.lineWidth = 1.5;
+                            ctx.moveTo(lbl.startX, lbl.startY);
+                            ctx.lineTo(lbl.elbowX, lbl.finalY); // Đường chéo
+                            ctx.lineTo(textX, lbl.finalY);      // Đường ngang
+                            ctx.stroke();
+
+                            ctx.fillStyle = '#333';
+                            ctx.textAlign = side === 1 ? 'left' : 'right';
+                            
+                            let curY = lbl.finalY - (lbl.blockHeight/2) + (fontSize/2);
+                            
+                            lbl.lines.forEach(l => {
+                                ctx.font = `bold ${fontSize}px Arial`;
+                                ctx.fillText(l, textX + (5*side), curY);
+                                curY += (fontSize + 4);
+                            });
+                            
+                            ctx.fillStyle = '#666';
+                            ctx.font = `${fontSize-1}px Arial`;
+                            ctx.fillText(lbl.valText, textX + (5*side), curY);
+                        });
+                    };
+
+                    draw(rightLabels, 1);
+                    draw(leftLabels, -1);
+                }
+            }]
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        // Debounce resize để không render liên tục gây giật
+        if(pieChart) {
+            fetchTop5Products(document.getElementById('startDate').value, document.getElementById('endDate').value);
+        }
+    });
+
+    document.getElementById('dateForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        fetchTop5Products(document.getElementById('startDate').value, document.getElementById('endDate').value);
+    });
+
+    fetchTop5Products(document.getElementById('startDate').value, document.getElementById('endDate').value);
+</script>
+
+</body>
+</html>

@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.example.phone_shop.models.DiscountVoucher;
 import com.example.phone_shop.models.OrdersPhones;
+import com.example.phone_shop.models.Phone;
 import com.example.phone_shop.models.UserVoucher;
 
 @Service
@@ -79,12 +81,14 @@ public class StatisticalService {
         for (OrdersPhones order : allOrdersPhones) {
             LocalDateTime createdAt = order.getCreatedAt();
             LocalDateTime updatedAt = order.getUpdatedAt();
+            // Sô lượng Sản phẩm trong đơn hàng 
+            int quantity=order.getQuantity();
             // Điều kiện đơn hàng nằm trong khoảng thời gian
             if (createdAt == null || updatedAt == null) continue;
             boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
 
             if (isInRange && order.getStatus() == OrdersPhones.OrderStatus.SUCCESS) {
-                totalOrder ++;
+                totalOrder +=quantity;
             }
         }
 
@@ -100,12 +104,14 @@ public class StatisticalService {
         for (OrdersPhones order : allOrdersPhones) {
             LocalDateTime createdAt = order.getCreatedAt();
             LocalDateTime updatedAt = order.getUpdatedAt();
+            // Sô lượng Sản phẩm trong đơn hàng 
+            int quantity=order.getQuantity();
             // Điều kiện đơn hàng nằm trong khoảng thời gian
             if (createdAt == null || updatedAt == null) continue;
             boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
 
             if (isInRange) {
-                totalOrder ++;
+                totalOrder +=quantity;
             }
         }
 
@@ -120,12 +126,14 @@ public class StatisticalService {
         for (OrdersPhones order : allOrdersPhones) {
             LocalDateTime createdAt = order.getCreatedAt();
             LocalDateTime updatedAt = order.getUpdatedAt();
+            // Sô lượng Sản phẩm trong đơn hàng 
+            int quantity=order.getQuantity();
             // Điều kiện đơn hàng nằm trong khoảng thời gian
             if (createdAt == null || updatedAt == null) continue;
             boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
 
             if (isInRange && (order.getStatus() == OrdersPhones.OrderStatus.REJECTED ||order.getStatus() == OrdersPhones.OrderStatus.CANCELED)) {
-                totalOrder ++;
+                totalOrder +=quantity;
             }
         }
 
@@ -140,12 +148,14 @@ public class StatisticalService {
         for (OrdersPhones order : allOrdersPhones) {
             LocalDateTime createdAt = order.getCreatedAt();
             LocalDateTime updatedAt = order.getUpdatedAt();
+            // Sô lượng Sản phẩm trong đơn hàng 
+            int quantity=order.getQuantity();
             // Điều kiện đơn hàng nằm trong khoảng thời gian
             if (createdAt == null || updatedAt == null) continue;
             boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
 
             if (isInRange && order.getStatus() == OrdersPhones.OrderStatus.ORDERED) {
-                totalOrder ++;
+                totalOrder +=quantity;
             }
         }
 
@@ -192,6 +202,8 @@ public class StatisticalService {
             {            
                 LocalDateTime createdAt = order.getCreatedAt();
                 LocalDateTime updatedAt = order.getUpdatedAt();
+                // Sô lượng Sản phẩm trong đơn hàng 
+            int quantity=order.getQuantity();
 
                 // Điều kiện đơn hàng nằm trong khoảng thời gian
                 if (createdAt == null || updatedAt == null) continue;
@@ -199,7 +211,7 @@ public class StatisticalService {
 
                 // Chỉ tính đơn hàng thành công
                 if (isInRange && order.getStatus() == OrdersPhones.OrderStatus.SUCCESS) {
-                    totalDay ++;
+                    totalDay +=quantity;
                 }
             }
         }
@@ -247,7 +259,7 @@ public class StatisticalService {
 
                 // Điều kiện đơn hàng nằm trong khoảng thời gian
                 if (createdAt == null || updatedAt == null) continue;
-            boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
+            boolean isInRange =  !updatedAt.isAfter(endTime);
 
                 // Chỉ tính đơn hàng thành công
                 if (isInRange) {
@@ -266,7 +278,7 @@ public class StatisticalService {
         int total=0;
         List<UserVoucher> allUserVouchers = userVoucherService.getAllUserVouchers();
         for (UserVoucher userVouchers : allUserVouchers) {
-            long idvoucher= userVouchers.getId();
+            long idvoucher= userVouchers.getVoucherId();
              if (userVouchers.getUsedAt()!=null && idvoucher==id)    
              {
                 LocalDateTime createdAt = userVouchers.getReceivedAt();
@@ -275,7 +287,7 @@ public class StatisticalService {
 
                 // Điều kiện đơn hàng nằm trong khoảng thời gian
                 if (createdAt == null || updatedAt == null) continue;
-            boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
+            boolean isInRange = !updatedAt.isAfter(endTime);
                 // Chỉ tính đơn hàng thành công
                 if (isInRange) {
                     total ++;
@@ -420,9 +432,277 @@ public class StatisticalService {
         return stats;
     }
 
+   public Map<String, Object> getRevenueByDayForProduct(LocalDateTime start, LocalDateTime end) {
+    Map<String, Object> stats = new HashMap<>();
+
+    List<String> labels = new ArrayList<>();
+    List<Double> revenue = new ArrayList<>();
+    List<Double> proportions = new ArrayList<>();
+    List<String> ImageUrls = new ArrayList<>();
+
+    LocalDateTime current = start.withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime finalEnd = end.withHour(23).withMinute(59).withSecond(59);
+
+    // Tổng doanh thu (tính 1 lần, tránh chia 0)
+    double TotalRevenueAll = totalRevenueByDay(current, finalEnd);
+    double totalRevenueAll=TotalRevenueAll;
+    if (totalRevenueAll == 0.0) {
+        totalRevenueAll = 1.0; // tránh chia cho 0
+    }
+
+    List<Phone> allPhones = phoneService.getAllPhones();
+
+    // Thu thập dữ liệu (giữ nguyên thứ tự ban đầu)
+    for (Phone phone : allPhones) {
+        ImageUrls.add(phone.getImageUrl());
+        labels.add(phone.getName());
+
+        long phoneid = phone.getId();
+        double dailyRevenueForProduct = totalRevenueByDayForProduct(current, finalEnd, phoneid);
+        revenue.add(dailyRevenueForProduct);
+        
+    }
 
     
 
+    // Tính proportions (làm tròn 2 chữ số)
+    for (int i = 0; i < revenue.size(); i++) {
+        double prop = (revenue.get(i) / totalRevenueAll) * 100.0;
+        prop = Math.round(prop * 100.0) / 100.0; // làm tròn 2 chữ số thập phân
+        proportions.add(prop);
+    }
 
+    // --- Sắp xếp giảm dần theo revenue, nhưng giữ đồng bộ các list ---
+    // Tạo danh sách chỉ số, sắp xếp chỉ số theo revenue
+    List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < revenue.size(); i++) indices.add(i);
+
+    indices.sort((a, b) -> Double.compare(revenue.get(b), revenue.get(a))); // giảm dần
+
+    // Tạo các danh sách mới theo thứ tự đã sắp xếp
+    List<String> sortedLabels = new ArrayList<>();
+    List<Double> sortedRevenue = new ArrayList<>();
+    List<Double> sortedProportions = new ArrayList<>();
+    List<String> sortedImageUrls = new ArrayList<>();
+
+    for (Integer idx : indices) {
+        sortedLabels.add(labels.get(idx));
+        sortedRevenue.add(revenue.get(idx));
+        sortedProportions.add(proportions.get(idx));
+        sortedImageUrls.add(ImageUrls.get(idx));
+    }
+
+    // Ghi đè lại các list ban đầu (giữ tên biến, giữ bố cục trả về)
+    labels.clear(); labels.addAll(sortedLabels);
+    revenue.clear(); revenue.addAll(sortedRevenue);
+    proportions.clear(); proportions.addAll(sortedProportions);
+    ImageUrls.clear(); ImageUrls.addAll(sortedImageUrls);
+
+    stats.put("ImageUrls", ImageUrls);
+    stats.put("labels", labels);
+    stats.put("revenueByDay", revenue);
+    stats.put("proportions", proportions);
+    stats.put("totalRevenue", TotalRevenueAll);
+
+
+    return stats;
+}
+
+public Map<String, Object> getTop5ProductsByRevenue(LocalDateTime start, LocalDateTime end) {
+    Map<String, Object> stats = new HashMap<>();
+
+    List<String> labels = new ArrayList<>();
+    List<Double> revenue = new ArrayList<>();
+    List<Double> proportions = new ArrayList<>();
+    List<String> ImageUrls = new ArrayList<>();
+
+    LocalDateTime current = start.withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime finalEnd = end.withHour(23).withMinute(59).withSecond(59);
+
+    // Tổng doanh thu (tránh chia 0)
+    double TotalRevenueAll = totalRevenueByDay(current, finalEnd);
+    double totalRevenueAll = TotalRevenueAll == 0 ? 1.0 : TotalRevenueAll;
+
+    List<Phone> allPhones = phoneService.getAllPhones();
+
+    // Thu thập dữ liệu
+    for (Phone phone : allPhones) {
+        ImageUrls.add(phone.getImageUrl());
+        labels.add(phone.getName());
+
+        long phoneid = phone.getId();
+        double dailyRevenueForProduct = totalRevenueByDayForProduct(current, finalEnd, phoneid);
+        revenue.add(dailyRevenueForProduct);
+    }
+
+    // Tính tỉ lệ %
+    for (int i = 0; i < revenue.size(); i++) {
+        double prop = (revenue.get(i) / totalRevenueAll) * 100.0;
+        prop = Math.round(prop * 100.0) / 100.0;
+        proportions.add(prop);
+    }
+
+    // Sắp xếp theo revenue giảm dần (dùng list index)
+    List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < revenue.size(); i++) indices.add(i);
+
+    indices.sort((a, b) -> Double.compare(revenue.get(b), revenue.get(a)));
+
+    // ⚠ CHỈ LẤY TOP 5
+    if (indices.size() > 5) {
+        indices = indices.subList(0, 5);
+    }
+
+    // Tạo list mới theo thứ tự đã sắp top 5
+    List<String> sortedLabels = new ArrayList<>();
+    List<Double> sortedRevenue = new ArrayList<>();
+    List<Double> sortedProportions = new ArrayList<>();
+    List<String> sortedImageUrls = new ArrayList<>();
+
+    for (Integer idx : indices) {
+        sortedLabels.add(labels.get(idx));
+        sortedRevenue.add(revenue.get(idx));
+        sortedProportions.add(proportions.get(idx));
+        sortedImageUrls.add(ImageUrls.get(idx));
+    }
+
+    // Ghi lại kết quả
+    stats.put("ImageUrls", sortedImageUrls);
+    stats.put("labels", sortedLabels);
+    stats.put("revenueByDay", sortedRevenue);
+    stats.put("proportions", sortedProportions);
+    stats.put("totalRevenue", TotalRevenueAll);
+
+    return stats;
+}
+
+public Map<String, Object> getTop5BestSellingProducts(LocalDateTime start, LocalDateTime end) {
+    Map<String, Object> stats = new HashMap<>();
+
+    List<String> labels = new ArrayList<>();
+    List<Double> quantities = new ArrayList<>(); // Số lượng bán ra
+    List<Double> proportions = new ArrayList<>();
+    List<String> ImageUrls = new ArrayList<>();
+
+    LocalDateTime current = start.withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime finalEnd = end.withHour(23).withMinute(59).withSecond(59);
+
+    List<Phone> allPhones = phoneService.getAllPhones();
+
+    double totalQuantityAll = 0; // Tổng số lượng tất cả sản phẩm bán được
+
+    // 1. Thu thập dữ liệu
+    for (Phone phone : allPhones) {
+        ImageUrls.add(phone.getImageUrl());
+        labels.add(phone.getName());
+
+        long phoneid = phone.getId();
+        // Gọi hàm đếm số lượng đơn hàng bạn đã viết
+        int quantityInt = totalOrdersByDayForProduct(current, finalEnd, phoneid);
+        double quantity = (double) quantityInt;
+
+        quantities.add(quantity);
+        
+        // Cộng dồn vào tổng để tính % sau này
+        totalQuantityAll += quantity;
+    }
+
+    // Xử lý chia cho 0
+    double finalTotalQuantity = totalQuantityAll == 0 ? 1.0 : totalQuantityAll;
+
+    // 2. Tính tỉ lệ %
+    for (Double qty : quantities) {
+        double prop = (qty / finalTotalQuantity) * 100.0;
+        prop = Math.round(prop * 100.0) / 100.0;
+        proportions.add(prop);
+    }
+
+    // 3. Sắp xếp theo số lượng (quantity) giảm dần
+    List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < quantities.size(); i++) indices.add(i);
+
+    indices.sort((a, b) -> Double.compare(quantities.get(b), quantities.get(a)));
+
+    // ⚠ CHỈ LẤY TOP 5
+    if (indices.size() > 5) {
+        indices = indices.subList(0, 5);
+    }
+
+    // 4. Tạo list mới theo thứ tự đã sắp xếp
+    List<String> sortedLabels = new ArrayList<>();
+    List<Double> sortedQuantities = new ArrayList<>();
+    List<Double> sortedProportions = new ArrayList<>();
+    List<String> sortedImageUrls = new ArrayList<>();
+
+    for (Integer idx : indices) {
+        sortedLabels.add(labels.get(idx));
+        sortedQuantities.add(quantities.get(idx));
+        sortedProportions.add(proportions.get(idx));
+        sortedImageUrls.add(ImageUrls.get(idx));
+    }
+
+    // 5. Ghi lại kết quả (Lưu ý key "revenueByDay" ở đây đổi thành "quantityByDay" hoặc giữ nguyên tùy ý bạn map ở FE)
+    stats.put("ImageUrls", sortedImageUrls);
+    stats.put("labels", sortedLabels);
+    stats.put("revenueByDay", sortedQuantities); // Mình giữ nguyên key này để bạn đỡ phải sửa JS ở frontend, nhưng bản chất nó là quantity
+    stats.put("proportions", sortedProportions);
+    stats.put("totalRevenue", totalQuantityAll); // Trả về tổng số lượng
+
+    return stats;
+}   
+
+public Map<String, Object> getCountVoucherUsageByUser(LocalDateTime start, LocalDateTime end) {
+    Map<String, Object> stats = new HashMap<>();
+
+    List<String> labels = new ArrayList<>();
+    List<Integer> quantities = new ArrayList<>();
+
+    LocalDateTime current = start.withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime finalEnd = end.withHour(23).withMinute(59).withSecond(59);
+
+    List<DiscountVoucher> allVoucherUsers = discountVoucherService.getAll();
+    int totalQuantityAll = totalUsedVouchersForUser(current, finalEnd);
+    //int totalQuantityAll = 0; // Tổng số lượng tất cả voucher
+
+    for (DiscountVoucher discountVoucher : allVoucherUsers) {
+        long voucherId = discountVoucher.getId();
+        labels.add(discountVoucher.getCode());
+        // Gọi hàm đếm số lượng 1 voucher
+        int quantityInt = countVoucherUsageByUser(current, finalEnd, voucherId);
+        int quantity = quantityInt;
+
+        quantities.add(quantity);
+        
+        // Cộng dồn vào tổng để tính %
+        //totalQuantityAll += quantity;
+    }
+
+    // 3. Sắp xếp theo số lượng (quantity) giảm dần
+    List<Integer> indices = new ArrayList<>();
+    for (int i = 0; i < quantities.size(); i++) indices.add(i);
+
+    indices.sort((a, b) -> Double.compare(quantities.get(b), quantities.get(a)));
+
+    // ⚠ CHỈ LẤY TOP 5
+    if (indices.size() > 5) {
+        indices = indices.subList(0, 5);
+    }
+
+    // 4. Tạo list mới theo thứ tự đã sắp xếp
+    List<String> sortedLabels = new ArrayList<>();
+    List<Integer> sortedQuantities = new ArrayList<>();
+
+    for (Integer idx : indices) {
+        sortedLabels.add(labels.get(idx));
+        sortedQuantities.add(quantities.get(idx));
+    }
+
+    // Gán vào map với tên key rõ nghĩa
+    stats.put("labels", sortedLabels);               // Tên voucher
+    stats.put("quantities", sortedQuantities);      // Số lượng đã dùng
+    stats.put("totalQuantity", totalQuantityAll);   // Tổng số lượng tất cả
+
+    return stats;
+}
 
 }

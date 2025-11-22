@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê doanh thu theo sản phẩm</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 22px;
+        }
+
+        form {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        form input, form button {
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .list-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            margin: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item .name {
+            font-size: 16px;
+            font-weight: bold;
+            width: 35%;
+        }
+
+        .item .price {
+            font-size: 15px;
+            color: #009900;
+            width: 25%;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .item .percent {
+            font-size: 15px;
+            color: #0066cc;
+            font-weight: bold;
+            width: 15%;
+            text-align: right;
+        }
+
+        #totalBox {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            padding: 8px 12px;
+            background: rgba(54, 162, 235, 0.9);
+            color: #fff;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+<h2>Thống kê doanh thu theo sản phẩm</h2>
+
+<form id="dateForm">
+    Từ: <input type="date" id="startDate">
+    Đến: <input type="date" id="endDate">
+    <button type="submit">Xem</button>
+</form>
+
+<div class="list-container" id="listContainer"></div>
+
+<div id="totalBox"></div>
+
+<script>
+    // Mặc định lấy 7 ngày gần nhất
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 6);
+
+    document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+    function fetchRevenueProduct(start, end) {
+        fetch(`/phones/api/statistics/RevenueForProduct?startDate=${start}&endDate=${end}`)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('listContainer');
+                container.innerHTML = ""; // clear
+
+                // Tổng doanh thu
+                document.getElementById('totalBox').innerText =
+                    "Tổng: " + data.totalRevenue.toLocaleString("vi-VN", {style:"currency", currency:"VND"});
+
+                const labels = data.labels;
+                const revenue = data.revenueByDay;
+                const proportions = data.proportions;
+                const images = data.ImageUrls;
+
+                for (let i = 0; i < labels.length; i++) {
+                    const item = document.createElement("div");
+                    item.className = "item";
+
+                    item.innerHTML = `
+                        <img src="${images[i]}" alt="Ảnh">
+                        <div class="name">${labels[i]}</div>
+                        <div class="price">${revenue[i].toLocaleString("vi-VN")} đ</div>
+                        <div class="percent">${proportions[i]} %</div>
+                    `;
+
+                    container.appendChild(item);
+                }
+            });
+    }
+
+    // Submit form
+    document.getElementById("dateForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        fetchRevenueProduct(start, end);
+    });
+
+    // Load mặc định
+    fetchRevenueProduct(document.getElementById('startDate').value, document.getElementById('endDate').value);
+</script>
+
+</body>
+</html>

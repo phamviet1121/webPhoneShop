@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Thống kê Top 5 Voucher</title>
+
+    <style>
+        /* 1. KHÓA MÀN HÌNH - FIX 1 TRANG DUY NHẤT */
+        html, body {
+            height: 100%; /* Chiều cao cố định bằng màn hình */
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            overflow: hidden; /* Cấm thanh cuộn của trình duyệt */
+        }
+
+        /* Container chính dùng Flexbox để chia dọc */
+        .main-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            max-width: 900px; /* Giới hạn chiều rộng trên PC cho đẹp */
+            margin: 0 auto;   /* Căn giữa trang */
+            position: relative;
+        }
+
+        /* 2. PHẦN CỐ ĐỊNH Ở TRÊN (Tiêu đề + Form) */
+        .header-section {
+            flex: 0 0 auto; /* Không bị co lại, luôn hiển thị đủ */
+            text-align: center;
+            padding: 10px 0;
+            background: #f9f9f9;
+            z-index: 10;
+        }
+
+        h2 {
+            margin: 5px 0 10px 0;
+            font-size: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 0 10px;
+        }
+
+        form input, form button {
+            padding: 6px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        form button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* 3. PHẦN DANH SÁCH - CUỘN THÔNG MINH */
+        .list-container {
+            flex: 1; /* Tự động chiếm hết khoảng trống còn lại ở giữa */
+            overflow-y: auto; /* Cho phép cuộn dọc nội bộ */
+            padding: 5px 15px 60px 15px; /* Padding dưới để ko bị nút Tổng che */
+            
+            /* Ẩn thanh cuộn (Scrollbar) nhưng vẫn cuộn được */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Ẩn thanh cuộn cho Chrome, Safari, Opera */
+        .list-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Style cho từng Item (giống mẫu bạn gửi) */
+        .item {
+            display: flex;
+            flex-direction: column; /* Xếp dọc để hiện thanh bar */
+            background: white;
+            padding: 1px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .item-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .item .name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .item .qty {
+            font-size: 15px;
+            color: #ff6600; /* Màu cam nổi bật */
+            font-weight: bold;
+            text-align: right;
+        }
+
+        /* Thanh Bar Chart */
+        .bar-bg {
+            background: #eee;
+            height: 8px;
+            border-radius: 4px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8c00, #ff4500);
+            width: 0%;
+            transition: width 0.8s ease;
+        }
+
+        .item .percent {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        /* 4. BOX TỔNG - FIX CỐ ĐỊNH DƯỚI GÓC */
+        #totalBox {
+            position: absolute;
+            bottom: 15px;
+            left: 15px; /* Giống mẫu bạn gửi */
+            padding: 8px 15px;
+            background: rgba(54, 162, 235, 0.95); /* Màu xanh giống mẫu */
+            color: #fff;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        
+        /* Nếu màn hình quá nhỏ, chỉnh font bé lại chút */
+        @media (max-width: 360px) {
+            h2 { font-size: 18px; }
+            form input { width: 90px; }
+            .item .name { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <!-- Header -->
+    <div class="header-section">
+        <h2>Top 5 Voucher Được Dùng Nhiều Nhất</h2>
+        <form id="dateForm">
+            Từ: <input type="date" id="startDate">
+            Đến: <input type="date" id="endDate">
+            <button type="submit">Xem</button>
+        </form>
+    </div>
+
+    <!-- Danh sách (Phần này sẽ cuộn nếu dài, nhưng ko hiện thanh cuộn) -->
+    <div class="list-container" id="listContainer">
+        <!-- JS sẽ chèn code vào đây -->
+    </div>
+
+    <!-- Footer nổi -->
+    <div id="totalBox">Đang tải...</div>
+</div>
+
+<script>
+    // --- 1. XỬ LÝ NGÀY THÁNG ---
+    function formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const endDateObj = new Date();
+    const startDateObj = new Date();
+    startDateObj.setDate(endDateObj.getDate() - 7); // Mặc định 7 ngày
+
+    document.getElementById('startDate').value = formatDateLocal(startDateObj);
+    document.getElementById('endDate').value = formatDateLocal(endDateObj);
+
+    // --- 2. GỌI API ---
+    function fetchTopVouchers(start, end) {
+        // API Endpoint (Đảm bảo đúng đường dẫn backend của bạn)
+        const apiUrl = `/phones/api/statistics/Top5BestSellingVoucher?startDate=${start}&endDate=${end}`;
+
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('listContainer');
+                container.innerHTML = ""; 
+
+                const labels = data.labels || [];
+                const quantities = data.quantities || [];
+                const totalAll = data.totalQuantity || 0;
+
+                // Cập nhật Tổng
+                document.getElementById('totalBox').innerText = 
+                    "Tổng: " + totalAll.toLocaleString("vi-VN") + " lượt";
+
+                if (labels.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; padding-top:20px; color:#777'>Không có dữ liệu.</p>";
+                    return;
+                }
+
+                const maxQty = Math.max(...quantities);
+
+                for (let i = 0; i < labels.length; i++) {
+                    const code = labels[i];
+                    const qty = quantities[i];
+                    
+                    // Tính phần trăm
+                    const barPercent = maxQty > 0 ? (qty / maxQty) * 100 : 0;
+                    const sharePercent = totalAll > 0 ? ((qty / totalAll) * 100).toFixed(1) : 0;
+
+                    // Tạo Item giống mẫu
+                    const item = document.createElement("div");
+                    item.className = "item";
+
+                    item.innerHTML = `
+                        <div class="item-row-top">
+                            <div class="name">🎟️ ${code}</div>
+                            <div class="qty">${qty.toLocaleString('vi-VN')}</div>
+                        </div>
+                        <div class="bar-bg">
+                            <div class="bar-fill" style="width: ${barPercent}%"></div>
+                        </div>
+                        <div class="percent">Chiếm ${sharePercent}%</div>
+                    `;
+
+                    container.appendChild(item);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('listContainer').innerHTML = "<p style='text-align:center; color:red'>Lỗi tải dữ liệu!</p>";
+            });
+    }
+
+    // Sự kiện Submit
+    document.getElementById("dateForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        fetchTopVouchers(document.getElementById('startDate').value, document.getElementById('endDate').value);
+    });
+
+    // Chạy lần đầu
+    fetchTopVouchers(document.getElementById('startDate').value, document.getElementById('endDate').value);
+</script>
+
+</body>
+</html>

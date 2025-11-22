@@ -2,426 +2,596 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Người Dùng</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Trang Quản Trị - Phone Shop</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --bs-body-font-family: 'Inter', sans-serif;
+        }
 
         body {
-            background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-        }
-        .table-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .btn-group a {
-            margin: 5px;
-        }
-        .text-truncate {
-            max-width: 200px;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            cursor: pointer;
-        }
-        .btn-cl {
-            background-color: #ff4d4d; /* Màu đỏ tùy chỉnh */
-            border-color: #ff1a1a;
-            color: white; /* Chữ màu trắng */
-            font-weight: bold;
+            background-color: #f0f2f5;
         }
 
-        .btn-cl:hover {
-            background-color: #cc0000; /* Đỏ đậm hơn khi hover */
-            border-color: #b30000;
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.08);
+        }
+
+        .main-content {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0 30px rgba(0,0,0,.1);
+        }
+        
+        .nav-tabs .nav-link {
+            font-weight: 500;
+            color: #6c757d;
+            border-top: 3px solid transparent;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--bs-primary);
+            border-color: var(--bs-primary) transparent;
+            border-top-width: 3px;
+            border-bottom-color: #fff;
+        }
+        
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .table-hover > tbody > tr:hover {
+            --bs-table-hover-bg: rgba(0, 123, 255, 0.05);
+        }
+
+        .action-buttons a {
+            margin-left: 5px;
+        }
+        
+        .product-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .text-truncate-custom {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Tùy chỉnh màu cho các badge trạng thái */
+        .badge.bg-success   { background-color: #198754 !important; }
+        .badge.bg-warning   { background-color: #ffc107 !important; color: #000 !important; }
+        .badge.bg-info      { background-color: #0dcaf0 !important; color: #000 !important; }
+        .badge.bg-danger    { background-color: #dc3545 !important; }
+        .badge.bg-secondary { background-color: #6c757d !important; }
+        .badge.bg-primary   { background-color: #0d6efd !important; }
+        .badge.bg-dark      { background-color: #212529 !important; }
+        .badge.bg-purple    { background-color: #6f42c1 !important; }
+
+        .rating-stars {
+            color: #ffc107;
         }
     </style>
-   
 </head>
 <body>
 
-<div class="container">
-
-    <div class="d-flex justify-content-between my-3">
-        <div class="btn-group">
-            <a th:href="@{/auth/logout}" class="btn btn-primary">Đăng xuất</a>
-            <a th:href="@{/phones/new}" class="btn btn-success">Thêm điện thoại</a>
-            <a th:href="@{/auth/new_user}" class="btn btn-success">Thêm người dùng</a>
-            <!-- <a th:href="@{/auth/List_users}" class="btn btn-success">Người dùng</a> -->
-            <a th:href="@{/phones/discount/new}" class="btn btn-success">Thêm điện thoại giảm giá</a>
-            <a th:href="@{/phones/voucher/add}" class="btn btn-success">Thêm voucher</a>
-
+<!-- THANH ĐIỀU HƯỚNG -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary" href="#"><i class="fas fa-mobile-alt me-2"></i>PhoneShop Admin</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto align-items-center">
+                <div class="btn-group">
+                    <a th:href="@{/phones/new}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>Thêm Điện Thoại</a>
+                    <a th:href="@{/auth/new_user}" class="btn btn-outline-primary"><i class="fas fa-user-plus me-1"></i>Thêm Người Dùng</a>
+                    <a th:href="@{/phones/discount/new}" class="btn btn-outline-primary"><i class="fas fa-tags me-1"></i>Thêm Khuyến Mãi</a>
+                    <a th:href="@{/phones/voucher/add}" class="btn btn-outline-primary"><i class="fas fa-ticket-alt me-1"></i>Thêm Voucher</a>
+                    <a th:href="@{/phones/statistical}" class="btn btn-outline-primary"><i class="fas fa-ticket-alt me-1"></i>Thống kê</a>
+                </div>
+                <a th:href="@{/auth/logout}" class="btn btn-danger ms-3"><i class="fas fa-sign-out-alt me-1"></i>Đăng xuất</a>
+            </div>
         </div>
     </div>
+</nav>
 
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="phones-tab" data-bs-toggle="tab" data-bs-target="#phones" type="button" role="tab">Danh sách điện thoại</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">Danh sách người dùng</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">Danh sách đơn hàng</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">Danh sách đánh giá của khách hàng</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#promotionsTab" type="button" role="tab">Danh sách giảm giá</button>
-        </li>
-         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#Voucher" type="button" role="tab">Danh sách Voucher</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#UserVoucher" type="button" role="tab">Danh sách UserVoucher</button>
-        </li>
-    </ul>
-
-    <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active table-container" id="phones" role="tabpanel">
-            <h2>Danh sách điện thoại</h2>
-            <table class="table table-bordered">
-                <tr>
-                    <th>ID</th>
-                    <th>Hình ảnh</th>
-                    <th>Tên</th>
-                    <th>Hãng</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Thông tin</th>
-                    <th>Trạng thái</th>
-                    <!-- <th>Danh mục</th> -->
-                    <th>Hành động</th>
-                </tr>
-                <tr th:each="phone : ${phones}">
-                    <td th:text="${phone.id}"></td>
-                    <td><img th:src="${phone.imageUrl != null ? phone.imageUrl : 'https://via.placeholder.com/80'}" alt="Ảnh" class="img-thumbnail" width="60"></td>
-                    <td th:text="${phone.name}"></td>
-                    <td th:text="${phone.brand}"></td>
-                    <!-- <td th:text="${phone.price}"></td> -->
-                    <td th:text="${#numbers.formatInteger(phone.price, 0, 'COMMA')+ ' nVN₫'}"></td>
-                    <td th:text="${phone.stock}"></td>
-                    <td class="text-truncate" th:text="${phone.description}" title="Nhấn để xem đầy đủ"></td>
-                    <td th:text="${phone.status}"></td>
-                    <!-- <td th:text="${phone.categoryId}"></td> -->
-                    <td>
-                        <a th:href="@{/phones/edit/{id}(id=${phone.id})}" class="btn btn-warning btn-sm">Sửa</a>
-                        <a th:href="@{/phones/delete/{id}(id=${phone.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Xóa</a>
-                    </td>
-                </tr>
-            </table>
+<!-- NỘI DUNG CHÍNH -->
+<div class="container-fluid main-content">
+    <div class="card">
+        <div class="card-header bg-white border-bottom-0">
+            <!-- CÁC TAB ĐIỀU HƯỚNG -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#phones" type="button"><i class="fas fa-mobile-screen-button me-1"></i>Điện Thoại</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#users" type="button"><i class="fas fa-users me-1"></i>Người Dùng</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#orders" type="button"><i class="fas fa-box-open me-1"></i>Đơn Hàng</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#promotionsTab" type="button"><i class="fas fa-percent me-1"></i>Khuyến Mãi</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#Voucher" type="button"><i class="fas fa-ticket me-1"></i>Voucher</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#UserVoucher" type="button"><i class="fas fa-user-tag me-1"></i>User-Voucher</button></li>
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews" type="button"><i class="fas fa-star me-1"></i>Đánh Giá</button></li>
+                <!-- ======================================================= -->
+                <!-- MỚI: Nút bấm cho tab Thống kê & Phân Tích -->
+                <!-- ======================================================= -->
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#statistics" type="button">
+                        <i class="fas fa-chart-line me-1"></i>Thống Kê & Phân Tích
+                    </button>
+                </li>
+            </ul>
         </div>
+        <div class="card-body p-4">
+            <div class="tab-content" id="myTabContent">
 
-        <div class="tab-pane fade table-container" id="users" role="tabpanel">
-            <h2>Danh sách người dùng</h2>
-            <table class="table table-bordered">
-                <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Email</th>
-                    <th>Số điện thoại</th>
-                    <th>Địa chỉ</th>
-                    <th>Phân quyền</th>
-                    <th>Hành động</th>
-                </tr>
-                <tr th:each="user : ${users}">
-                    <td th:text="${user.idUser}"></td>
-                    <td th:text="${user.nameUser}"></td>
-                    <td th:text="${user.gmailUser}"></td>
-                    <td th:text="${user.phoneNumber}"></td>
-                    <td th:text="${user.address}"></td>
-                    <td th:text="${user.role}"></td>
-                    <td>
-                        <a th:href="@{/auth/edit_user/{id}(id=${user.idUser})}" class="btn btn-warning btn-sm">Sửa</a>
-                        <a th:href="@{/auth/delete_user/{id}(id=${user.idUser})}" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Xóa</a>
-                    </td>
-                </tr>
-            </table>
+                <!-- TAB: Danh sách điện thoại -->
+                <div class="tab-pane fade show active" id="phones" role="tabpanel">
+                    <h4 class="mb-3">Danh sách điện thoại</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Tên</th>
+                                    <th>Hãng</th>
+                                    <th>Giá</th>
+                                    <th>Kho</th>
+                                    <th>Thông tin</th>
+                                    <th>Ngày tạo</th>        
+                                    <th>Ngày cập nhật</th>   
+                                    <th>Trạng thái</th>
+                                    <th class="text-end">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="phone : ${phones}">
+                                    <td th:text="${phone.id}"></td>
+                                    <td><img th:src="${phone.imageUrl != null ? phone.imageUrl : 'https://via.placeholder.com/80'}" alt="Ảnh" class="product-img"></td>
+                                    <td class="fw-medium" th:text="${phone.name}"></td>
+                                    <td th:text="${phone.brand}"></td>
+                                    <td th:text="${#numbers.formatInteger(phone.price, 0, 'COMMA') + ' VNĐ'}"></td>
+                                    <td th:text="${phone.stock}"></td>
+                                    <td><div class="text-truncate-custom" th:title="${phone.description}" th:text="${phone.description}"></div></td>
+                                    <td th:text="${phone.createdAt != null ? #temporals.format(phone.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                                    <td th:text="${phone.updatedAt != null ? #temporals.format(phone.updatedAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}"></td>
+                                    <td>
+                                        <span th:if="${phone.status == 'active'}" class="badge bg-success">Hoạt động</span>
+                                        <span th:if="${phone.status != 'active'}" class="badge bg-secondary" th:text="${phone.status}"></span>
+                                    </td>
+                                    <td class="text-end action-buttons">
+                                        <a th:href="@{/phones/edit/{id}(id=${phone.id})}" class="btn btn-outline-warning btn-sm"><i class="fas fa-pen-to-square"></i></a>
+                                        <a th:href="@{/phones/delete/{id}(id=${phone.id})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: Danh sách người dùng -->
+                <div class="tab-pane fade" id="users" role="tabpanel">
+                     <h4 class="mb-3">Danh sách người dùng</h4>
+                     <div class="table-responsive">
+                         <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Vai trò</th>
+                                    <th class="text-end">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="user : ${users}">
+                                    <td th:text="${user.idUser}"></td>
+                                    <td class="fw-medium" th:text="${user.nameUser}"></td>
+                                    <td th:text="${user.gmailUser}"></td>
+                                    <td th:text="${user.phoneNumber}"></td>
+                                    <td th:text="${user.address}"></td>
+                                    <td>
+                                        <span th:if="${user.role == 'ADMIN'}" class="badge bg-primary">Quản trị viên</span>
+                                        <span th:if="${user.role == 'USER'}" class="badge bg-secondary">Người dùng</span>
+                                        <span th:if="${user.role != 'ADMIN' and user.role != 'USER'}" class="badge bg-dark" th:text="${user.role}"></span>
+                                    </td>
+                                    <td class="text-end action-buttons">
+                                        <a th:href="@{/auth/edit_user/{id}(id=${user.idUser})}" class="btn btn-outline-warning btn-sm"><i class="fas fa-pen-to-square"></i></a>
+                                        <a th:href="@{/auth/delete_user/{id}(id=${user.idUser})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa?');"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                         </table>
+                     </div>
+                </div>
+                
+                <!-- TAB: Danh sách đơn hàng -->
+                <div class="tab-pane fade" id="orders" role="tabpanel">
+                    <h4 class="mb-3">Danh sách đơn hàng</h4>
+                     <div class="table-responsive">
+                         <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Khách hàng</th>
+                                    <th>Sản phẩm</th>
+                                    <th>SL</th>
+                                    <th>Giá</th>
+                                    <th>SL KM</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Ngày cập nhật</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="orderDetail, stat : ${orderDetails}">
+                                    <td th:text="${stat.count}"></td>
+                                    <td>
+                                        <div class="fw-medium" th:text="${orderDetail.username}"></div>
+                                        <div class="small text-muted" th:text="${orderDetail.userphone}"></div>
+                                        <div class="small text-muted text-truncate-custom" th:title="${orderDetail.useraddress}" th:text="${orderDetail.useraddress}"></div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img th:src="${orderDetail.imageUrl}" alt="Ảnh" class="product-img me-2">
+                                            <span class="fw-medium" th:text="${orderDetail.name}"></span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${orderDetail.quantity}"></td>
+                                    <td th:text="${#numbers.formatInteger(orderDetail.price, 0, 'COMMA') + ' VNĐ'}"></td>
+
+                                    <td th:text="${orderDetail.usedDiscount}"></td>
+
+                                    <td th:text="${orderDetail.createdAt != null ? #temporals.format(orderDetail.createdAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                                    <td th:text="${orderDetail.updatedAt != null ? #temporals.format(orderDetail.updatedAt, 'dd/MM/yyyy HH:mm') : 'Chưa cập nhật'}"></td>
+                                    
+                                    <td>
+                                        <span th:switch="${#strings.trim(orderDetail.status)}">
+                                            <span th:case="'ORDERED'" class="badge bg-warning">Chờ xác nhận</span>
+                                            <span th:case="'CONFIRMED'" class="badge bg-info">Đã xác nhận</span>
+                                            <span th:case="'SUCCESS'" class="badge bg-success">Thành công</span>
+                                            <span th:case="'REJECTED'" class="badge bg-danger">Đã từ chối</span>
+                                            <span th:case="'CANCELED'" class="badge bg-secondary">Khách đã hủy</span>
+                                            <span th:case="*" class="badge bg-dark" th:text="${orderDetail.status}"></span>
+                                        </span>
+                                    </td>
+                                    <td class="action-buttons">
+                                        <div th:if="${#strings.trim(orderDetail.status) == 'CONFIRMED'}">
+                                            <a th:href="@{/orders/success/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-sm">Hoàn tất</a>
+                                        </div>
+                                        <div th:if="${#strings.trim(orderDetail.status) == 'ORDERED'}">
+                                            <a th:href="@{/orders/confirm/{id}(id=${orderDetail.Id})}" class="btn btn-success btn-sm">Xác nhận</a>
+                                        </div>
+                                        <div th:if="${#strings.trim(orderDetail.status) == 'CONFIRMED' or #strings.trim(orderDetail.status) == 'ORDERED'}">
+                                            <a th:href="@{/orders/reject/{id}(id=${orderDetail.Id})}" class="btn btn-danger btn-sm">Từ chối</a>
+                                        </div>
+                                        <div th:if="${#strings.trim(orderDetail.status) == 'SUCCESS'}"><p class="small text-muted fst-italic mb-0">Đơn hàng thành công</p></div>
+                                        <div th:if="${#strings.trim(orderDetail.status) == 'CANCELED'}"><p class="small text-muted fst-italic mb-0">Khách hàng đã hủy</p></div>
+                                        <div th:if="${#strings.trim(orderDetail.status) == 'REJECTED'}"><p class="small text-muted fst-italic mb-0">Đơn hàng đã bị từ chối</p></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                         </table>
+                     </div>
+                </div>
+
+                <!-- TAB: Khuyến mãi -->
+                <div class="tab-pane fade" id="promotionsTab" role="tabpanel">
+                     <h4 class="mb-3">Danh sách khuyến mãi</h4>
+                     <div class="table-responsive">
+                         <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Giá</th>
+                                    <th>Giảm giá</th>
+                                    <th>SL KM</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-end">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="promo : ${promotions}">
+                                    <td th:text="${promo.PromotionId}"></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img th:src="${promo.ImageUrlPhoneId != null ? promo.ImageUrlPhoneId : 'https://via.placeholder.com/80'}" alt="Ảnh" class="product-img me-2">
+                                            <span class="fw-medium" th:text="${promo.NamePhoneId}"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text-decoration-line-through text-muted small" th:text="${#numbers.formatInteger(promo.PricePhone, 0, 'COMMA') + ' VNĐ'}"></div>
+                                        <div class="fw-bold text-danger" th:text="${#numbers.formatInteger(promo.FinalPrice, 0, 'COMMA') + ' VNĐ'}"></div>
+                                    </td>
+                                    <td><span class="badge bg-danger" th:text="'-' + ${promo.DiscountPercent} + '%'"></span></td>
+                                    <td th:text="${promo.PromoQuantity}"></td>
+                                    <td class="small">
+                                        <div>Bắt đầu: <span th:text="${#temporals.format(promo.StartTime, 'HH:mm dd/MM/yy')}"></span></div>
+                                        <div>Kết thúc: <span th:text="${#temporals.format(promo.EndTime, 'HH:mm dd/MM/yy')}"></span></div>
+                                    </td>
+                                    <td>
+                                        <span th:switch="${promo.PromotionStatus}">
+                                            <span th:case="'active'" class="badge bg-success">Đang chạy</span>
+                                            <span th:case="'upcoming'" class="badge bg-info">Sắp tới</span>
+                                            <span th:case="'inactive'" class="badge bg-secondary">Kết thúc</span>
+                                        </span>
+                                    </td>
+                                    <td class="text-end action-buttons">
+                                        <a th:href="@{/phones/discount/delete/{id}(id=${promo.PromotionId})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?');"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                         </table>
+                     </div>
+                </div>
+                
+                <!-- TAB: Đánh giá -->
+                <div class="tab-pane fade" id="reviews" role="tabpanel">
+                    <h4 class="mb-3">Danh sách đánh giá</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Người dùng</th>
+                                    <th>Đánh giá</th>
+                                    <th>Bình luận</th>
+                                    <th>TB Sao</th>
+                                    <th class="text-end">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="reviewDetail, stat : ${reviewDetails}">
+                                    <td th:text="${stat.count}"></td>
+                                    <td class="fw-medium" th:text="${reviewDetail.name}"></td>
+                                    <td th:text="${reviewDetail.username}"></td>
+                                    <td class="rating-stars">
+                                        <i class="fas fa-star" th:each="i : ${#numbers.sequence(1, reviewDetail.rating)}"></i>
+                                        <i class="far fa-star" th:each="i : ${#numbers.sequence(1, 5 - reviewDetail.rating)}"></i>
+                                    </td>
+                                    <td th:text="${reviewDetail.comment}"></td>
+                                    <td th:text="${#numbers.formatDecimal(reviewDetail.avgRating, 1, 1)}"></td>
+                                    <td class="text-end action-buttons">
+                                        <a th:href="@{/phones/reviewsdelete/{id}(id=${reviewDetail.Id})}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa đánh giá này?');"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: Voucher -->
+                <div class="tab-pane fade" id="Voucher" role="tabpanel">
+                    <h4 class="mb-3">Danh sách Voucher</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Mã</th>
+                                    <th>Giảm giá</th>
+                                    <th>Điều kiện</th>
+                                    <th>SL</th>
+                                    <th>Hết hạn</th>
+                                    <th>Loại</th>
+                                    <th>Mô tả</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-end">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="v : ${vouchers}">
+                                    <td th:text="${v.id}"></td>
+                                    <td class="fw-medium" th:text="${v.code}"></td>
+                                    <td>
+                                        <div th:text="${v.discountPercent} + '%'"></div>
+                                        <div class="small text-muted" th:text="'Tối đa ' + ${#numbers.formatInteger(v.maxDiscount, 0, 'COMMA')} + ' VNĐ'"></div>
+                                    </td>
+                                    <td class="small" th:text="'Đơn từ ' + ${#numbers.formatInteger(v.minOrderValue, 0, 'COMMA')} + ' VNĐ'"></td>
+                                    <td th:text="${v.quantity == null ? '∞' : v.quantity}"></td>
+                                    <td class="small" th:text="${v.expiredAt != null ? #temporals.format(v.expiredAt, 'dd/MM/yyyy HH:mm') : 'Không hết hạn'}"></td>
+                                    <td>
+                                        <span th:if="${v.voucherType == 'order'}" class="badge bg-purple">Toàn đơn</span>
+                                        <span th:if="${v.voucherType == 'product'}" class="badge bg-dark">Sản phẩm</span>
+                                    </td>
+                                    <td class="small" th:text="${v.description}"></td>
+                                    <td>
+                                        <span th:if="${v.status == 'active'}" class="badge bg-success">Hoạt động</span>
+                                        <span th:if="${v.status != 'active'}" class="badge bg-secondary" th:text="${v.status}"></span>
+                                    </td>
+                                    <td class="text-end action-buttons">
+                                        <a class="btn btn-outline-warning btn-sm" th:href="@{'/phones/voucher/edit/' + ${v.id}}"><i class="fas fa-pen-to-square"></i></a>
+                                        <a class="btn btn-outline-danger btn-sm" th:href="@{'/phones/voucher/delete/' + ${v.id}}" onclick="return confirm('Xóa voucher này?');"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: UserVoucher -->
+                <div class="tab-pane fade" id="UserVoucher" role="tabpanel">
+                    <h4 class="mb-3">Danh sách Voucher của người dùng</h4>
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User ID</th>
+                                    <th>Voucher ID</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày nhận</th>
+                                    <th>Ngày dùng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="uv : ${userVouchers}">
+                                    <td th:text="${uv.id}"></td>
+                                    <td th:text="${uv.userId}"></td>
+                                    <td th:text="${uv.voucherId}"></td>
+                                    <td>
+                                        <span th:if="${uv.isUsed}" class="badge bg-success">Đã dùng</span>
+                                        <span th:if="${!uv.isUsed}" class="badge bg-secondary">Chưa dùng</span>
+                                    </td>
+                                    <td th:text="${uv.receivedAt != null ? #temporals.format(uv.receivedAt, 'dd/MM/yyyy') : '-'}"></td>
+                                    <td th:text="${uv.usedAt != null ? #temporals.format(uv.usedAt, 'dd/MM/yyyy') : 'Chưa sử dụng'}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- MỚI: Nội dung cho tab Thống kê & Phân Tích -->
+                <!-- ======================================================= -->
+                <div class="tab-pane fade" id="statistics" role="tabpanel">
+                    <h4 class="mb-4">Thống Kê Doanh Thu và Bán Hàng</h4>
+
+                    <!-- 1. Bảng Doanh thu theo thời gian -->
+                    <h5 class="mt-4">1. Doanh thu theo thời gian</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Thời Gian</th>
+                                    <th>Tổng Số Đơn Hàng</th>
+                                    <th>Đơn Hàng Thành Công</th>
+                                    <th>Tổng Doanh Thu</th>
+                                    <th>Doanh Thu Trung Bình / Đơn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
+                                <!-- Ví dụ: -->
+                                <tr th:each="stat : ${revenueByTimeStats}">
+                                    <td th:text="${stat.period}">Tuần 1 (01-07/11)</td>
+                                    <td th:text="${stat.totalOrders}">150</td>
+                                    <td th:text="${stat.successfulOrders}">125</td>
+                                    <td class="fw-bold" th:text="${#numbers.formatInteger(stat.totalRevenue, 0, 'COMMA') + ' VNĐ'}">1.875.000.000 VNĐ</td>
+                                    <td th:text="${#numbers.formatInteger(stat.averageRevenuePerOrder, 0, 'COMMA') + ' VNĐ'}">15.000.000 VNĐ</td>
+                                </tr>
+                                <!-- Các dòng dữ liệu khác -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 2. Bảng Top Sản phẩm bán chạy -->
+                    <h5 class="mt-5">2. Top sản phẩm bán chạy</h5>
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hạng</th>
+                                    <th>Sản Phẩm</th>
+                                    <th>Số Lượng Bán</th>
+                                    <th>Tổng Doanh Thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
+                                <!-- Ví dụ: -->
+                                <tr th:each="product, iterStat : ${topSellingProducts}">
+                                    <td th:text="${iterStat.count}">1</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img th:src="${product.imageUrl}" alt="Ảnh" class="product-img me-2">
+                                            <span class="fw-medium" th:text="${product.name}">iPhone 17 Pro Max</span>
+                                        </div>
+                                    </td>
+                                    <td th:text="${product.quantitySold}">80</td>
+                                    <td class="fw-bold" th:text="${#numbers.formatInteger(product.revenue, 0, 'COMMA') + ' VNĐ'}">2.800.000.000 VNĐ</td>
+                                </tr>
+                                <!-- Các dòng dữ liệu khác -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 3. Bảng Doanh thu theo hãng -->
+                    <h5 class="mt-5">3. Doanh thu theo hãng sản xuất</h5>
+                     <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hãng Sản Xuất</th>
+                                    <th>Tổng Doanh Thu</th>
+                                    <th>Tỷ Trọng Doanh Thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
+                                <!-- Ví dụ: -->
+                                <tr th:each="brandStat : ${revenueByBrand}">
+                                    <td class="fw-medium" th:text="${brandStat.brandName}">Apple</td>
+                                    <td class="fw-bold" th:text="${#numbers.formatInteger(brandStat.revenue, 0, 'COMMA') + ' VNĐ'}">4.150.000.000 VNĐ</td>
+                                    <td th:text="${#numbers.formatDecimal(brandStat.percentage, 1, 1) + '%'}">56.2%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 4. Bảng Tình trạng đơn hàng -->
+                    <h5 class="mt-5">4. Phân tích tình trạng đơn hàng</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Trạng Thái</th>
+                                    <th>Số Lượng</th>
+                                    <th>Tỷ Lệ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
+                                <!-- Ví dụ: -->
+                                <tr th:each="statusStat : ${orderStatusStats}">
+                                    <td>
+                                        <span th:switch="${statusStat.statusName}">
+                                            <span th:case="'SUCCESS'" class="badge bg-success">Thành công</span>
+                                            <span th:case="'CANCELED'" class="badge bg-secondary">Khách đã hủy</span>
+                                            <span th:case="'REJECTED'" class="badge bg-danger">Đã từ chối</span>
+                                            <span th:case="*" class="badge bg-info" th:text="${statusStat.statusName}">Đang xử lý</span>
+                                        </span>
+                                    </td>
+                                    <td th:text="${statusStat.count}">480</td>
+                                    <td th:text="${#numbers.formatDecimal(statusStat.percentage, 1, 1) + '%'}">88.9%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
         </div>
-
-
-        
-        <div class="tab-pane fade table-container" id="orders" role="tabpanel">
-            <h2>Danh sách đơn hàng</h2>
-            <table class="table table-bordered">
-       
-
-                <tr>
-                    <th>STT</th>
-                    
-                    <th>Tên Người dùng</th>
-                    <th>Gmail Người dùng</th>
-                    <th>Phone Người dùng</th>
-                    <th>Địa chỉ Người dùng</th>
-                   
-                    <th>Ảnh Điện thoại</th>
-                    <th>Tên Điện thoại</th>
-                    <th>Số lượng</th>
-                    <th>Giá</th>
-                    <th>Trạng Thái</th>
-                    <th>Hàng Động</th>
-            
-                </tr>
-                <tr th:each="orderDetail, stat : ${orderDetails}">
-                    <td th:text="${stat.index + 1}"></td> 
-                    
-                    <td th:text="${orderDetail.username}"></td>
-                    <td th:text="${orderDetail.usergmail}"></td>
-                    <td th:text="${orderDetail.userphone}"></td>
-                    <td th:text="${orderDetail.useraddress}"></td>
-                   
-                    <td>
-                        <img th:src="${orderDetail.imageUrl}" alt="Ảnh điện thoại" width="100">
-                    </td>
-                    <td th:text="${orderDetail.name}"></td>
-                    <td th:text="${orderDetail.quantity}"></td>
-                    <!-- <td th:text="${orderDetail.price}"></td> -->
-                    <td th:text="${#numbers.formatInteger(orderDetail.price, 0, 'COMMA')+ ' nVN₫'}"></td>
-                    <td th:text="${orderDetail.status}"></td>
-                    <td>
-                        <!-- <a th:href="@{/orders/confirm/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-sm">Xác nhận</a>
-                        <a th:href="@{/orders/reject/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-cl">Từ chối </a>
-                        <a th:href="@{/orders/success/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-cl">Thành công </a>
-
-                        th:if="${#strings.trim(orderDetail.status) == 'REJECTED' or #strings.trim(orderDetail.status) == 'CANCELED' -->
-
-                        <div th:if="${#strings.trim(orderDetail.status) == 'CONFIRMED'}">
-                            <a th:href="@{/orders/success/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-cl">Thành công </a>
-                            <!-- <a th:href="@{/orders/delete/{id}(id=${orderDetail.Id})}" class="btn btn-danger"> Xóa </a> -->
-                        </div>
-
-                        <div th:if="${#strings.trim(orderDetail.status) == 'REJECTED' or #strings.trim(orderDetail.status) == 'ORDERED'}">
-                            <a th:href="@{/orders/confirm/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-sm">Xác nhận</a>
-                            <!-- <a th:href="@{/orders/delete/{id}(id=${orderDetail.Id})}" class="btn btn-danger"> Xóa </a> -->
-                        </div>
-                        
-                        <div th:if="${#strings.trim(orderDetail.status) == 'CONFIRMED' or #strings.trim(orderDetail.status) == 'ORDERED'}">
-                            <a th:href="@{/orders/reject/{id}(id=${orderDetail.Id})}" class="btn btn-primary btn-cl">Từ chối </a>
-                            <!-- <a th:href="@{/orders/delete/{id}(id=${orderDetail.Id})}" class="btn btn-danger"> Xóa </a> -->
-                        </div>
-
-                        <div th:if="${#strings.trim(orderDetail.status) == 'SUCCESS'}">
-                            <p>Đơn hàng thành công</p>
-                        </div>
-                        <div th:if="${#strings.trim(orderDetail.status) == 'CANCELED'}">
-                            <p>khách hàng đã hủy </p>
-                        </div>
-                       
-                    </td>
-                    
-                </tr>
-            </table>
-        </div>
-
-        
-
-        <!-- Khuyến mãi -->
-        <div class="tab-pane fade table-container" id="promotionsTab" role="tabpanel">
-            <h2>Danh sách khuyến mãi</h2>
-            <table class="table table-bordered">
-                <tr>
-                    <th>ID KM</th>
-                    <th>Điện thoại</th>
-                    <th>Hình ảnh</th>
-                    <th>Giá gốc</th>
-                    <th>Giá khuyến mãi</th>
-                    <th>Số lượng KM</th>
-                    <th>Khuyến mãi (%)</th>
-                    <th>Thời gian</th>
-                    <th>Trạng thái KM</th>
-                    <th>Hành động</th>
-                </tr>
-                <tr th:each="promo : ${promotions}">
-                    <!-- Thông tin Promotion -->
-                    <td th:text="${promo.PromotionId}"></td>
-
-                    <!-- Thông tin Phone -->
-                    <td th:text="${promo.NamePhoneId}"></td>
-                    <td>
-                        <img th:src="${promo.ImageUrlPhoneId != null ? promo.ImageUrlPhoneId : 'https://via.placeholder.com/80'}"
-                            alt="Ảnh" class="img-thumbnail" width="60">
-                    </td>
-                    <td th:text="${#numbers.formatInteger(promo.PricePhone, 0, 'COMMA') + ' VN₫'}"></td>
-                    <td th:text="${#numbers.formatInteger(promo.FinalPrice, 0, 'COMMA') + ' VN₫'}"></td>
-
-                    <!-- Số lượng khuyến mãi áp dụng -->
-                    <td th:text="${promo.PromoQuantity}"></td>
-
-                    <!-- Phần trăm giảm giá -->
-                    <td th:text="${promo.DiscountPercent + '%'}"></td>
-
-                    <!-- Thời gian khuyến mãi -->
-                    <td>
-                        <span th:text="${#temporals.format(promo.StartTime, 'dd/MM/yyyy HH:mm')}"></span> -
-                        <span th:text="${#temporals.format(promo.EndTime, 'dd/MM/yyyy HH:mm')}"></span>
-                    </td>
-
-                    <!-- Trạng thái khuyến mãi -->
-                    <td th:text="${promo.PromotionStatus}"></td>
-
-                    <!-- Hành động -->
-                    <td>
-                        <!-- <a th:href="@{/phones/discount/edit/{id}(id=${promo.PromotionId})}" class="btn btn-warning btn-sm">Sửa</a> -->
-                        <a th:href="@{/phones/discount/delete/{id}(id=${promo.PromotionId})}"
-                        class="btn btn-danger btn-sm"
-                        onclick="return confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?');">Xóa</a>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-
-        <div class="tab-pane fade table-container" id="reviews" role="tabpanel">
-  
-            <h2>Danh sách người dùng đánh giá</h2>
-            <table class="table table-bordered">
-                <tr>
-                    <th>STT</th>
-                    <th>ID</th>
-                    <th>Id điện thoại</th>
-                    <th>Hình ảnh điện thoại</th>
-                    <th>Tên điện thoại</th>
-                    <th>User ID</th>
-                    <th>Tên người dùng</th>
-                    <th>Gmail người dùng</th>
-                    <th>Sđt người dùng</th>
-                    <th>Rating</th>
-                    <th>Comment</th>
-                    <th>Trung bình sao</th> <!-- ✅ -->
-                    <th>hành động</th>
-                </tr>
-                <tr th:each="reviewDetail, stat : ${reviewDetails}">
-                    <td th:text="${stat.index + 1}"></td>
-                    <td th:text="${reviewDetail.Id}"></td> 
-
-                    <td th:text="${reviewDetail.phoneId}"></td>
-                    <td><img th:src="${reviewDetail.imageUrl}" width="100"/></td>
-                    <td th:text="${reviewDetail.name}"></td> 
-
-                    <td th:text="${reviewDetail.userId}"></td>
-                    <td th:text="${reviewDetail.username}"></td>
-                    <td th:text="${reviewDetail.usergmail}"></td> 
-                    <td th:text="${reviewDetail.userphone}"></td> 
-
-                    <td th:text="${reviewDetail.rating}"></td>
-                    <td th:text="${reviewDetail.comment}"></td>
-
-                    <td th:text="${#numbers.formatDecimal(reviewDetail.avgRating, 1, 1)}"></td> <!-- ✅ -->
-                    <td>
-                        <a th:href="@{/phones/reviewsdelete/{id}(id=${reviewDetail.Id})}" 
-                        class="btn btn-danger btn-sm"onclick="return confirm('Bạn có chắc muốn xóa đánh giá này?');">Xóa </a>
-                       
-                     
-                    </td>
-                </tr>
-            </table>
-        </div> 
-
-         <div class="tab-pane fade table-container" id="Voucher" role="tabpanel">
-  
-            <h2>Danh sách Voucher giảm giá</h2>
-            <table class="table table-bordered table-striped shadow-sm bg-white">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Mã</th>
-                    <th>Giảm(%)</th>
-                    <th>Giảm tối đa</th>
-                    <th>Đơn tối thiểu</th>
-                    <th>Số lượng</th>
-                    <th>Hết hạn</th>
-                    <th>Trạng thái</th>
-                    <th>Loại</th>
-                    <th>Mô tả</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr th:each="v : ${vouchers}">
-                    <td th:text="${v.id}"></td>
-                    <td th:text="${v.code}"></td>
-                    <td th:text="${v.discountPercent}"></td>
-                    <td th:text="${v.maxDiscount}"></td>
-                    <td th:text="${v.minOrderValue}"></td>
-                    <td th:text="${v.quantity == null ? '∞' : v.quantity}"></td>
-                    <td>
-                        <span th:if="${v.expiredAt != null}"
-                            th:text="${#temporals.format(v.expiredAt, 'dd/MM/yyyy HH:mm')}"></span>
-                        <span th:if="${v.expiredAt == null}">Không có</span>
-                    </td>
-                    <td th:text="${v.status}"></td>
-                    <td>
-                        <span th:if="${v.voucherType == 'order'}" class="badge bg-info">Giảm đơn hàng</span>
-                        <span th:if="${v.voucherType == 'product'}" class="badge bg-warning">Giảm 1 sản phẩm</span>
-                    </td>
-                    <td th:text="${v.description}"></td>
-                    <td>
-                        <a class="btn btn-sm btn-warning" 
-                        th:href="@{'/phones/voucher/edit/' + ${v.id}}">
-                        Sửa
-                        </a>
-
-                        <a class="btn btn-sm btn-danger"
-                        th:href="@{'/phones/voucher/delete/' + ${v.id}}"
-                        onclick="return confirm('Xóa voucher này?');">
-                        Xóa
-                        </a>
-                    </td>
-
-                </tr>
-                </tbody>
-            </table>
-        </div> 
-
-        
-        <div class="tab-pane fade table-container" id="UserVoucher" role="tabpanel">
-
-            <h2>Danh sách User - Voucher</h2>
-
-            <table class="table table-bordered table-striped bg-white shadow-sm">
-
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>User ID</th>
-                        <th>Voucher ID</th>
-                        <th>Đã dùng?</th>
-                        <th>Ngày nhận</th>
-                        <th>Ngày dùng</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr th:each="uv : ${userVouchers}">
-                        <td th:text="${uv.id}"></td>
-                        <td th:text="${uv.userId}"></td>
-                        <td th:text="${uv.voucherId}"></td>
-                        <td>
-                            <span th:if="${uv.isUsed}" class="badge bg-success">Đã dùng</span>
-                            <span th:if="${!uv.isUsed}" class="badge bg-secondary">Chưa dùng</span>
-                        </td>
-                        <td th:text="${uv.receivedAt != null ? uv.receivedAt : '-'}"></td>
-                        <td th:text="${uv.usedAt != null ? uv.usedAt : 'Chưa sử dụng'}"></td>
-                    </tr>
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-
     </div>
 </div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

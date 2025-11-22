@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.time.LocalDateTime; // <-- THÊM IMPORT NÀY
+import org.hibernate.annotations.CreationTimestamp; // <-- THÊM IMPORT NÀY
 
 @Getter
 @Setter
@@ -23,6 +25,18 @@ public class OrdersPhones {
     private OrderStatus status;
 
     private Boolean isReviewed=false;
+
+    @Column(name = "useddiscount", nullable = false) 
+    private int usedDiscount;
+
+    @Column(name = "is_visible_to_user", nullable = false)
+    private Boolean isVisibleToUser = true; 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at") 
+    private LocalDateTime updatedAt;
     
     public enum OrderStatus {
         ORDERED,     // Đã đặt hàng
@@ -31,4 +45,5 @@ public class OrdersPhones {
         REJECTED,    // Shop từ chối do lý do khác
         SUCCESS
     }
+    
 }

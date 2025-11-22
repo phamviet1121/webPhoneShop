@@ -1,6 +1,6 @@
 package com.example.phone_shop.controllers;
 
-import com.example.phone_shop.models.Cart;
+// import com.example.phone_shop.models.Cart;
 import com.example.phone_shop.models.OrdersPhones;
 import com.example.phone_shop.models.OrdersPhones.OrderStatus;
 import com.example.phone_shop.models.Phone;
@@ -15,7 +15,7 @@ import com.example.phone_shop.services.UserService;
 import com.example.phone_shop.services.UserVoucherService;
 import com.example.phone_shop.services.DiscountVoucherService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +32,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+// import java.util.Arrays;
+// import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -293,6 +293,7 @@ public class OrdersPhonesController {
         order.setQuantity(quantity);
         order.setPrice(BigDecimal.valueOf(finalPrice));
         order.setStatus(OrderStatus.ORDERED);
+        order.setUsedDiscount(discountUsedCount);
 
         service.saveOrder(order);
 
@@ -471,6 +472,7 @@ public class OrdersPhonesController {
         order.setQuantity(currentQuantity);
         order.setPrice(BigDecimal.valueOf(finalPrice));
         order.setStatus(OrderStatus.ORDERED);
+        order.setUsedDiscount(discountUsedCount);
         service.saveOrder(order);
 
         // 6. CẬP NHẬT TỒN KHO SẢN PHẨM VÀ KHUYẾN MÃI
@@ -537,7 +539,7 @@ public class OrdersPhonesController {
         List<OrdersPhones> orders = service.getOrdersByUserId(userId);
         model.addAttribute("orders", orders);
 
-        List<Map<String, Object>> orderDetails = service.getOrdersWithPhoneDetailsByUserId(userId);
+        List<Map<String, Object>> orderDetails = service.getOrdersWithPhoneDetailsByUserIdIsVisibleToUser(userId);
         model.addAttribute("orderDetails", orderDetails);
 
         return "orders/orders_list_user"; // Trả về trang Thymeleaf "orders_list_user.html"
@@ -606,6 +608,7 @@ public class OrdersPhonesController {
             OrdersPhones order = orderOptional.get();
             order.setStatus(OrdersPhones.OrderStatus.CANCELED);
             service.saveOrder(order);
+            service.Refundquantity(id);
             redirectAttributes.addFlashAttribute("success", "Đơn hàng đã bị hủy.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Không thể hủy đơn hàng này.");
@@ -621,10 +624,17 @@ public class OrdersPhonesController {
             OrdersPhones order = orderOptional.get();
             if (order.getStatus() == OrdersPhones.OrderStatus.CANCELED
                     || order.getStatus() == OrdersPhones.OrderStatus.REJECTED) {
-                service.deleteOrder(id);
+                service.hideOrderForUser(id);
                 redirectAttributes.addFlashAttribute("success", "Đơn hàng đã được xóa.");
             } else {
-                redirectAttributes.addFlashAttribute("error", "Chỉ có thể xóa đơn hàng đã hủy hoặc bị từ chối.");
+                if(order.getStatus() == OrdersPhones.OrderStatus.SUCCESS && order.getIsReviewed()==true )
+                {
+                    service.hideOrderForUser(id);
+                }
+                else{
+                   redirectAttributes.addFlashAttribute("error", "Chỉ có thể xóa đơn hàng đã hủy hoặc bị từ chối."); 
+                }
+                
             }
             return "redirect:/orders/orders_list_User/" + order.getUserId();
         }
@@ -724,6 +734,7 @@ public class OrdersPhonesController {
 
                 order.setStatus(OrdersPhones.OrderStatus.REJECTED);
                 service.saveOrder(order);
+                service.Refundquantity(id);
                 redirectAttributes.addFlashAttribute("success", "Đơn hàng đã bị từ chối.");
             } else {
                 redirectAttributes.addFlashAttribute("error",

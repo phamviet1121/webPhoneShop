@@ -21,6 +21,51 @@ public class PromotionsService {
     @Autowired
     private PromotionsRepository promotionsRepository;
 
+      @Transactional
+    // Bỏ comment dòng dưới để hàm tự chạy mỗi giờ
+    // @Scheduled(cron = "0 0 * * * ?")
+    public void updatePromotionStatuses() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // Lấy TẤT CẢ khuyến mại để kiểm tra
+        List<Promotions> allPromotions = promotionsRepository.findAll();
+        List<Promotions> promotionsToUpdate = new ArrayList<>();
+
+        for (Promotions promo : allPromotions) {
+            
+            // >>> ĐIỀU KIỆN QUAN TRỌNG NHẤT <<<
+            // Nếu khuyến mại đã ở trạng thái 'inactive', bỏ qua và không kiểm tra nữa.
+            if ("inactive".equals(promo.getStatus())) {
+                continue;
+            }
+
+            String originalStatus = promo.getStatus();
+
+            // Ưu tiên 1: Chuyển thành 'inactive' nếu hết số lượng hoặc hết hạn
+            if (promo.getQuantity() <= 0 || (promo.getEndTime() != null && now.isAfter(promo.getEndTime()))) {
+                promo.setStatus("inactive");
+            }
+            // Ưu tiên 2: Chuyển thành 'active' nếu trong thời gian khuyến mại
+            else if (now.isAfter(promo.getStartTime()) && (promo.getEndTime() == null || now.isBefore(promo.getEndTime()))) {
+                promo.setStatus("active");
+            }
+            // Ưu tiên 3: Chuyển thành 'upcoming' nếu chưa đến thời gian
+            else if (now.isBefore(promo.getStartTime())) {
+                promo.setStatus("upcoming");
+            }
+
+            // Chỉ thêm vào danh sách cần cập nhật nếu trạng thái thực sự thay đổi
+            if (!originalStatus.equals(promo.getStatus())) {
+                promotionsToUpdate.add(promo);
+            }
+        }
+        
+        // Chỉ lưu vào cơ sở dữ liệu nếu có sự thay đổi, để tối ưu hóa hiệu suất
+        if (!promotionsToUpdate.isEmpty()) {
+            promotionsRepository.saveAll(promotionsToUpdate);
+        }
+    }
+
     // Lấy tất cả khuyến mại
     public List<Promotions> getAllPromotions() {
         return promotionsRepository.findAll();

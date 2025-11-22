@@ -1,6 +1,6 @@
 package com.example.phone_shop.controllers;
 
-import com.example.phone_shop.models.Cart;
+// import com.example.phone_shop.models.Cart;
 import com.example.phone_shop.models.DiscountVoucher;
 import com.example.phone_shop.models.Phone;
 import com.example.phone_shop.models.Promotions;
@@ -10,6 +10,7 @@ import com.example.phone_shop.services.DiscountVoucherService;
 import com.example.phone_shop.services.OrdersPhonesService;
 import com.example.phone_shop.services.PhoneService;
 import com.example.phone_shop.services.ReviewService;
+import com.example.phone_shop.services.StatisticalService;
 import com.example.phone_shop.services.PromotionsService;
 import com.example.phone_shop.services.UserService;
 import com.example.phone_shop.services.UserVoucherService;
@@ -53,11 +54,12 @@ public class PhoneController {
     private final DiscountVoucherService voucherService;
     private final UserVoucherService userVoucherService;
     private final CartService cartService;
+    private final StatisticalService statisticalService;
 
     // @Autowired
     public PhoneController(PhoneService phoneService, UserService userService, OrdersPhonesService ordersPhonesService,
             ReviewService reviewService, PromotionsService promotionsService, DiscountVoucherService voucherService,
-            UserVoucherService userVoucherService, CartService cartService) {
+            UserVoucherService userVoucherService, CartService cartService,StatisticalService statisticalService) {
         this.phoneService = phoneService;
         this.userService = userService;
         this.ordersPhonesService = ordersPhonesService;
@@ -66,6 +68,7 @@ public class PhoneController {
         this.voucherService = voucherService;
         this.userVoucherService = userVoucherService;
         this.cartService = cartService;
+        this.statisticalService = statisticalService;
 
     }
 
@@ -77,15 +80,16 @@ public class PhoneController {
         model.addAttribute("extraItemsFragment", null);
         List<Map<String, Object>> phonesWithPromotions = phoneService.getAllPhones_list_phones();
         model.addAttribute("phonesWithPromotions", phonesWithPromotions);
+        promotionsService.updatePromotionStatuses();
         return "phone-list"; // Trả về file Thymeleaf: phone-list.html
     }
 
-    @GetMapping("/list")
-    public String showPromotionsWithPhones(Model model) {
-        List<Map<String, Object>> phonesWithPromotions = phoneService.getAllPhones_list_phones();
-        model.addAttribute("phonesWithPromotions", phonesWithPromotions);
-        return "promotions_list"; // Tên file HTML (Thymeleaf)
-    }
+    // @GetMapping("/list")
+    // public String showPromotionsWithPhones(Model model) {
+    //     List<Map<String, Object>> phonesWithPromotions = phoneService.getAllPhones_list_phones();
+    //     model.addAttribute("phonesWithPromotions", phonesWithPromotions);
+    //     return "promotions_list"; // Tên file HTML (Thymeleaf)
+    // }
 
     // 🛠 Hiển thị form thêm điện thoại
     @GetMapping("/new")
@@ -236,7 +240,7 @@ public class PhoneController {
         model.addAttribute("vouchers", list);
 
         model.addAttribute("idUser", idUser);
-
+        promotionsService.updatePromotionStatuses();
         voucherService.deactivateExpiredOrOutOfStockVouchers();
         return "users/index_User"; // Chuyển đến trang index_User.html
     }
@@ -254,8 +258,8 @@ public class PhoneController {
         List<Map<String, Object>> orderDetails = ordersPhonesService.getAllOrdersWithPhoneDetails();
         model.addAttribute("orderDetails", orderDetails);
 
-        List<Map<String, Object>> DiscountPhones = phoneService.getAllPhones_discount();
-        model.addAttribute("discountPhones", DiscountPhones);
+        // List<Map<String, Object>> DiscountPhones = phoneService.getAllPhones_discount();
+        // model.addAttribute("discountPhones", DiscountPhones);
 
         List<Map<String, Object>> promotions = promotionsService.getAllPromotionsWithPhones();
         model.addAttribute("promotions", promotions);
@@ -289,6 +293,7 @@ public class PhoneController {
         }
 
         model.addAttribute("idUser", idUser);
+        promotionsService.updatePromotionStatuses();
         voucherService.deactivateExpiredOrOutOfStockVouchers();
         return "admins/index_Admin"; // Chuyển đến trang index_User.html
     }
@@ -700,6 +705,65 @@ public class PhoneController {
         
         // ✅ THAY ĐỔI: Chuyển hướng về trang giỏ hàng sẽ hợp lý hơn
         return "redirect:/orders/carts_list_User_view/" + idUser;
+    }
+    // @GetMapping("/api/statistics/weekly")
+    // public Map<String, Object> getWeeklyStatistics() {
+    //     return statisticalService.getWeeklyStats();
+    // }
+    @GetMapping("/api/statistics/weekly")
+    @ResponseBody
+    public Map<String, Object> getWeeklyStatistics(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy tuần hiện tại
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        return statisticalService.getStatsByWeek(start, end);
+    }
+
+    @GetMapping("/api/statistics/Revenue")
+    @ResponseBody
+    public Map<String, Object> getWeeklyRevenue(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy 7 ngày gần nhất
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        // Gọi service rút gọn chỉ lấy labels và doanh thu
+        return statisticalService.getRevenueByDay(start, end);
+    }
+    @GetMapping("/statistical")
+    public String showStatisticalPage() {
+        return "/admins/statistical"; // sẽ map tới templates/statistical.html
+    }
+    @GetMapping("/salesChart")
+    public String salesChart() {
+        return "admins/salesChart"; // Thymeleaf tự tìm admins/salesChart.html
+    }
+
+    @GetMapping("/salesByProduct")
+    public String salesByProduct() {
+        return "admins/salesByProduct"; // Thymeleaf tự tìm admins/salesByProduct.html
     }
 
 }

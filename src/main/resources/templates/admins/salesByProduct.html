@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống kê doanh thu theo ngày</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            overflow: hidden; /* loại bỏ scroll */
+        }
+        h2 {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 20px;
+        }
+        form {
+            text-align: center;
+            margin: 10px 0;
+        }
+        form input, form button {
+            padding: 5px 8px;
+            font-size: 14px;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 90px); /* trừ header + form */
+            padding: 0;
+            margin: 0 auto;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+        #totalRevenueBox {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 150px;
+            height: 30px;
+            background: rgba(54, 162, 235, 0.8); /* hơi trong suốt */
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Thống kê doanh thu theo ngày</h2>
+
+<form id="dateForm">
+    Từ: <input type="date" id="startDate" name="startDate">
+    Đến: <input type="date" id="endDate" name="endDate">
+    <button type="submit">Xem</button>
+</form>
+
+<div class="chart-container">
+    <canvas id="revenueChart"></canvas>
+    <div id="totalRevenueBox"></div>
+</div>
+
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    let chart;
+
+    // Mặc định nhãn thứ trong tuần
+    const vietWeekDays = ["2","3","4","5","6","7","CN"];
+
+    // Mặc định 7 ngày gần nhất
+    const today = new Date();
+    const lastWeek = new Date();
+    lastWeek.setDate(today.getDate() - 6);
+    document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+    function fetchRevenue(start, end) {
+        const url = `/phones/api/statistics/Revenue?startDate=${start}&endDate=${end}`;
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if(chart) chart.destroy();
+
+                // Update tổng doanh thu vào ô cố định
+                const totalRevenueBox = document.getElementById('totalRevenueBox');
+                totalRevenueBox.innerText = 'Tổng: ' + 
+                    data.totalRevenue.toLocaleString('vi-VN', { style:'currency', currency:'VND' });
+
+                const labels = data.labels.map(label => {
+                    const date = new Date(label.split(' ')[0]);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const dayOfWeek = label.match(/\((.+)\)/)[1];
+                    return `${day}/${month} (${dayOfWeek})`;
+                });
+
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Tổng doanh thu',
+                            data: data.revenueByDay,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' +
+                                            context.raw.toLocaleString('vi-VN', {style: 'currency', currency: 'VND'});
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    maxRotation: 90,
+                                    minRotation: 45,
+                                    autoSkip: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString('vi-VN', {style:'currency', currency:'VND'});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    }
+
+    // Submit form
+    document.getElementById('dateForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        fetchRevenue(start, end);
+    });
+
+    // Load mặc định
+    fetchRevenue(document.getElementById('startDate').value, document.getElementById('endDate').value);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thống kê doanh thu tuần</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 5px 0;
+            font-size: 18px;
+        }
+
+        form {
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        form input, form button {
+            padding: 3px 6px;
+            font-size: 12px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: calc(100% - 100px); 
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Thống kê doanh thu tuần</h2>
+
+    <form id="weekForm">
+        Từ: <input type="date" id="startDate" name="startDate">
+        Đến: <input type="date" id="endDate" name="endDate">
+        <button type="submit">Xem</button>
+    </form>
+
+    <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        let chart;
+
+        // Default date: tuần hiện tại
+        const today = new Date();
+        const lastWeek = new Date();
+        lastWeek.setDate(today.getDate() - 6);
+        document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
+        document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+        function fetchWeeklyStats(start, end) {
+            let url = '/phones/api/statistics/weekly';
+            if(start && end) {
+                url += `?startDate=${start}&endDate=${end}`;
+            }
+
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if(chart) chart.destroy();
+
+                    chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: [
+                                {
+                                    label: 'Tổng doanh thu',
+                                    data: data.revenueByDay,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointRadius: 4
+                                },
+                                {
+                                    label: 'Đơn hàng thành công',
+                                    data: data.ordersSuccess,
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointRadius: 4
+                                },
+                                {
+                                    label: 'Đơn hàng bị hủy',
+                                    data: data.ordersRejected,
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointRadius: 4
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: true, position: 'top' },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    callbacks: {
+                                        label: function(context) {
+                                            if(context.dataset.label === 'Tổng doanh thu'){
+                                                return context.dataset.label + ': ' +
+                                                       context.raw.toLocaleString('vi-VN', {
+                                                           style: 'currency',
+                                                           currency: 'VND'
+                                                       });
+                                            } else {
+                                                return context.dataset.label + ': ' + context.raw;
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { title: { display: true, text: 'Ngày trong tuần' } },
+                                y: { title: { display: true, text: 'Giá trị' }, beginAtZero: true }
+                            }
+                        }
+                    });
+                });
+        }
+
+        // Form submit
+        document.getElementById('weekForm').addEventListener('submit', function(e){
+            e.preventDefault();
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            fetchWeeklyStats(start, end);
+        });
+
+        // Load mặc định tuần hiện tại
+        fetchWeeklyStats(document.getElementById('startDate').value, document.getElementById('endDate').value);
+    </script>
+
+</body>
+</html>

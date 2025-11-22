@@ -76,31 +76,31 @@ public class PhoneService {
         return phoneRepository.findByNameContainingOrBrandContaining(keyword, keyword);
     }
 
-    public List<Map<String, Object>> getAllPhones_discount() {
-    List<Phone> phones = phoneRepository.findAll();
-    List<Map<String, Object>> discountPhones = new ArrayList<>();
+    // public List<Map<String, Object>> getAllPhones_discount() {
+    // List<Phone> phones = phoneRepository.findAll();
+    // List<Map<String, Object>> discountPhones = new ArrayList<>();
 
-        for (Phone phone : phones) {
-             if (phone != null && phone.getDiscount() != null && phone.getDiscount().compareTo(BigDecimal.ZERO) > 0) {
-                Map<String, Object> orderInfo = new HashMap<>();
-                orderInfo.put("PhoneId", phone.getId());
-                orderInfo.put("ImageUrlPhoneId", phone.getImageUrl());
-                orderInfo.put("NamePhoneId", phone.getName());
-                orderInfo.put("PricePhone", phone.getPrice());
+    //     for (Phone phone : phones) {
+    //          if (phone != null && phone.getDiscount() != null && phone.getDiscount().compareTo(BigDecimal.ZERO) > 0) {
+    //             Map<String, Object> orderInfo = new HashMap<>();
+    //             orderInfo.put("PhoneId", phone.getId());
+    //             orderInfo.put("ImageUrlPhoneId", phone.getImageUrl());
+    //             orderInfo.put("NamePhoneId", phone.getName());
+    //             orderInfo.put("PricePhone", phone.getPrice());
 
-                // Tính giá sau khi giảm
-                double finalPrice = phone.getPrice() - (phone.getDiscount().doubleValue() / 100) * phone.getPrice();
-                orderInfo.put("FinalPrice", finalPrice);
+    //             // Tính giá sau khi giảm
+    //             double finalPrice = phone.getPrice() - (phone.getDiscount().doubleValue() / 100) * phone.getPrice();
+    //             orderInfo.put("FinalPrice", finalPrice);
 
-                orderInfo.put("StockPhone", phone.getStock());
-                orderInfo.put("DiscountPhone", phone.getDiscount());
-                orderInfo.put("StatusPhone", phone.getStatus());
+    //             orderInfo.put("StockPhone", phone.getStock());
+    //             orderInfo.put("DiscountPhone", phone.getDiscount());
+    //             orderInfo.put("StatusPhone", phone.getStatus());
 
-                discountPhones.add(orderInfo);
-            }
-        }
-        return discountPhones;
-    }
+    //             discountPhones.add(orderInfo);
+    //         }
+    //     }
+    //     return discountPhones;
+    // }
     
     // Lấy điện thoại theo ID
     public Optional<Phone> getPhoneById_phone(Long id) {

@@ -280,15 +280,13 @@ public class PhoneController {
         model.addAttribute("reviewDetails", reviewDetails);
 
         Integer idUser = (Integer) session.getAttribute("idUser");
-
-        if (idUser != null) {
-            // Gọi hàm findById để lấy thông tin user từ database
-            // User user = userService.findById(Long.valueOf(idUser));
-            User user = (User) session.getAttribute("user");
-            if (user != null) {
-                model.addAttribute("user", user); // Truyền user vào Model
-            }
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+            
+            model.addAttribute("user", user); 
+            
         } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
             return "redirect:/auth/login";
         }
 
@@ -710,26 +708,26 @@ public class PhoneController {
     // public Map<String, Object> getWeeklyStatistics() {
     //     return statisticalService.getWeeklyStats();
     // }
-    @GetMapping("/api/statistics/weekly")
-    @ResponseBody
-    public Map<String, Object> getWeeklyStatistics(
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+    // @GetMapping("/api/statistics/weekly")
+    // @ResponseBody
+    // public Map<String, Object> getWeeklyStatistics(
+    //         @RequestParam(required = false) String startDate,
+    //         @RequestParam(required = false) String endDate) {
 
-        LocalDateTime start, end;
+    //     LocalDateTime start, end;
 
-        if (startDate != null && endDate != null) {
-            start = LocalDateTime.parse(startDate + "T00:00:00");
-            end = LocalDateTime.parse(endDate + "T23:59:59");
-        } else {
-            // Nếu không truyền, lấy tuần hiện tại
-            LocalDateTime now = LocalDateTime.now();
-            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
-            end = now.withHour(23).withMinute(59).withSecond(59);
-        }
+    //     if (startDate != null && endDate != null) {
+    //         start = LocalDateTime.parse(startDate + "T00:00:00");
+    //         end = LocalDateTime.parse(endDate + "T23:59:59");
+    //     } else {
+    //         // Nếu không truyền, lấy tuần hiện tại
+    //         LocalDateTime now = LocalDateTime.now();
+    //         start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+    //         end = now.withHour(23).withMinute(59).withSecond(59);
+    //     }
 
-        return statisticalService.getStatsByWeek(start, end);
-    }
+    //     return statisticalService.getStatsByWeek(start, end);
+    // }
 
     @GetMapping("/api/statistics/Revenue")
     @ResponseBody
@@ -753,16 +751,30 @@ public class PhoneController {
         return statisticalService.getRevenueByDay(start, end);
     }
     @GetMapping("/statistical")
-    public String showStatisticalPage() {
+    public String showStatisticalPage(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
         return "/admins/statistical"; // sẽ map tới templates/statistical.html
     }
-    @GetMapping("/salesChart")
-    public String salesChart() {
-        return "admins/salesChart"; // Thymeleaf tự tìm admins/salesChart.html
-    }
+    // @GetMapping("/salesChart")
+    // public String salesChart() {
+    //     return "admins/salesChart"; // Thymeleaf tự tìm admins/salesChart.html
+    // }
 
     @GetMapping("/salesByProduct")
-    public String salesByProduct() {
+    public String salesByProduct(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
         return "admins/salesByProduct"; // Thymeleaf tự tìm admins/salesByProduct.html
     }
     @GetMapping("/api/statistics/RevenueForProduct")
@@ -787,7 +799,14 @@ public class PhoneController {
         return statisticalService.getRevenueByDayForProduct(start, end);
     }
     @GetMapping("/salesChartProduct")
-    public String salesChartProduct() {
+    public String salesChartProduct(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
         return "admins/salesChartProduct"; // Thymeleaf tự tìm admins/salesByProduct.html
     }
 
@@ -813,7 +832,14 @@ public class PhoneController {
         return statisticalService.getTop5ProductsByRevenue(start, end);
     }
     @GetMapping("/salesTop5ChartProduct")
-    public String salesTop5ChartProduct() {
+    public String salesTop5ChartProduct(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
         return "admins/salesTop5ChartProduct";
     }
 
@@ -839,7 +865,14 @@ public class PhoneController {
         return statisticalService.getTop5BestSellingProducts(start, end);
     }
     @GetMapping("/salesTop5BestSellingProduct")
-    public String salesTop5BestSellingProduct() {
+    public String salesTop5BestSellingProduct(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
         return "admins/salesTop5BestSellingProduct";
     }
 
@@ -864,8 +897,47 @@ public class PhoneController {
         return statisticalService.getCountVoucherUsageByUser(start, end);
     }
     @GetMapping("/salesTop5BestSellingVoucher")
-    public String salesTop5BestSellingvoucher() {
+    public String salesTop5BestSellingvoucher(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
         return "admins/salesTop5BestSellingVoucher";
+    }
+
+    @GetMapping("/api/statistics/totalStatistics")
+    @ResponseBody
+    public Map<String, Object> getWeeklyTotalStatistics(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        LocalDateTime start, end;
+
+        if (startDate != null && endDate != null) {
+            start = LocalDateTime.parse(startDate + "T00:00:00");
+            end = LocalDateTime.parse(endDate + "T23:59:59");
+        } else {
+            // Nếu không truyền, lấy 7 ngày gần nhất
+            LocalDateTime now = LocalDateTime.now();
+            start = now.minusDays(6).withHour(0).withMinute(0).withSecond(0);
+            end = now.withHour(23).withMinute(59).withSecond(59);
+        }
+
+        return statisticalService.getTotalStatistics(start, end);
+    }
+    @GetMapping("/totalStatistics")
+    public String TotalStatistics(HttpSession session) {
+        Integer idUser = (Integer) session.getAttribute("idUser");
+        User user = (User) session.getAttribute("user");
+        if (idUser != null && user != null && "admin".equals(user.getRole())) {
+        } else {
+            // Nếu không đăng nhập HOẶC đã đăng nhập nhưng không phải admin
+            return "redirect:/auth/login";
+        }
+        return "admins/salesChart";
     }
 
 }

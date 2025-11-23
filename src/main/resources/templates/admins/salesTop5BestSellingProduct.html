@@ -101,6 +101,13 @@
 <div id="totalRevenueBox">Đang tải...</div>
 
 <script>
+    function formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     const ctx = document.getElementById('pieChart').getContext('2d');
     let pieChart;
 
@@ -108,8 +115,8 @@
     const today = new Date();
     const lastWeek = new Date();
     lastWeek.setDate(today.getDate() - 6);
-    document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
-    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+    document.getElementById('startDate').value = formatDateLocal(lastWeek);
+    document.getElementById('endDate').value = formatDateLocal(today);
 
 
     function fetchTop5Products(start, end) {

@@ -19,12 +19,12 @@
         /* Header trên cùng */
         .header {
             grid-column: 1 / 4; /* chiếm toàn bộ 3 cột */
-            border: 1px solid #ccc;
+            border: 1px solid #5e5e5e;
             padding: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: #f0f0f0;
+            background-color: #7cadd0;
         }
 
         .section {
@@ -43,13 +43,13 @@
 <body>
     <div class="header">
         <!-- Nút và thông số -->
-        <button>Button 1</button>
-        <button>Button 2</button>
-        <div>Thông số: 12345</div>
+        <button type="button" th:onclick="|window.location.href='@{/phones/index_Admin}'|">
+            Quay lại 
+        </button>
     </div>
 
     <div class="section">
-        <iframe th:src="@{/phones/salesChart}" title="Phần 1"></iframe>
+        <iframe th:src="@{/phones/totalStatistics}" title="Phần 1"></iframe>
     </div>
     <div class="section">
         <iframe th:src="@{/phones/salesByProduct}" title="Phần 2"></iframe>

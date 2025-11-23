@@ -129,14 +129,7 @@
                 <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#Voucher" type="button"><i class="fas fa-ticket me-1"></i>Voucher</button></li>
                 <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#UserVoucher" type="button"><i class="fas fa-user-tag me-1"></i>User-Voucher</button></li>
                 <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews" type="button"><i class="fas fa-star me-1"></i>Đánh Giá</button></li>
-                <!-- ======================================================= -->
-                <!-- MỚI: Nút bấm cho tab Thống kê & Phân Tích -->
-                <!-- ======================================================= -->
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#statistics" type="button">
-                        <i class="fas fa-chart-line me-1"></i>Thống Kê & Phân Tích
-                    </button>
-                </li>
+              
             </ul>
         </div>
         <div class="card-body p-4">
@@ -465,124 +458,7 @@
                     </div>
                 </div>
 
-                <!-- ======================================================= -->
-                <!-- MỚI: Nội dung cho tab Thống kê & Phân Tích -->
-                <!-- ======================================================= -->
-                <div class="tab-pane fade" id="statistics" role="tabpanel">
-                    <h4 class="mb-4">Thống Kê Doanh Thu và Bán Hàng</h4>
-
-                    <!-- 1. Bảng Doanh thu theo thời gian -->
-                    <h5 class="mt-4">1. Doanh thu theo thời gian</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Thời Gian</th>
-                                    <th>Tổng Số Đơn Hàng</th>
-                                    <th>Đơn Hàng Thành Công</th>
-                                    <th>Tổng Doanh Thu</th>
-                                    <th>Doanh Thu Trung Bình / Đơn</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
-                                <!-- Ví dụ: -->
-                                <tr th:each="stat : ${revenueByTimeStats}">
-                                    <td th:text="${stat.period}">Tuần 1 (01-07/11)</td>
-                                    <td th:text="${stat.totalOrders}">150</td>
-                                    <td th:text="${stat.successfulOrders}">125</td>
-                                    <td class="fw-bold" th:text="${#numbers.formatInteger(stat.totalRevenue, 0, 'COMMA') + ' VNĐ'}">1.875.000.000 VNĐ</td>
-                                    <td th:text="${#numbers.formatInteger(stat.averageRevenuePerOrder, 0, 'COMMA') + ' VNĐ'}">15.000.000 VNĐ</td>
-                                </tr>
-                                <!-- Các dòng dữ liệu khác -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- 2. Bảng Top Sản phẩm bán chạy -->
-                    <h5 class="mt-5">2. Top sản phẩm bán chạy</h5>
-                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Hạng</th>
-                                    <th>Sản Phẩm</th>
-                                    <th>Số Lượng Bán</th>
-                                    <th>Tổng Doanh Thu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
-                                <!-- Ví dụ: -->
-                                <tr th:each="product, iterStat : ${topSellingProducts}">
-                                    <td th:text="${iterStat.count}">1</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img th:src="${product.imageUrl}" alt="Ảnh" class="product-img me-2">
-                                            <span class="fw-medium" th:text="${product.name}">iPhone 17 Pro Max</span>
-                                        </div>
-                                    </td>
-                                    <td th:text="${product.quantitySold}">80</td>
-                                    <td class="fw-bold" th:text="${#numbers.formatInteger(product.revenue, 0, 'COMMA') + ' VNĐ'}">2.800.000.000 VNĐ</td>
-                                </tr>
-                                <!-- Các dòng dữ liệu khác -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- 3. Bảng Doanh thu theo hãng -->
-                    <h5 class="mt-5">3. Doanh thu theo hãng sản xuất</h5>
-                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Hãng Sản Xuất</th>
-                                    <th>Tổng Doanh Thu</th>
-                                    <th>Tỷ Trọng Doanh Thu</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
-                                <!-- Ví dụ: -->
-                                <tr th:each="brandStat : ${revenueByBrand}">
-                                    <td class="fw-medium" th:text="${brandStat.brandName}">Apple</td>
-                                    <td class="fw-bold" th:text="${#numbers.formatInteger(brandStat.revenue, 0, 'COMMA') + ' VNĐ'}">4.150.000.000 VNĐ</td>
-                                    <td th:text="${#numbers.formatDecimal(brandStat.percentage, 1, 1) + '%'}">56.2%</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- 4. Bảng Tình trạng đơn hàng -->
-                    <h5 class="mt-5">4. Phân tích tình trạng đơn hàng</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Trạng Thái</th>
-                                    <th>Số Lượng</th>
-                                    <th>Tỷ Lệ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Dữ liệu sẽ được lặp bằng Thymeleaf ở đây -->
-                                <!-- Ví dụ: -->
-                                <tr th:each="statusStat : ${orderStatusStats}">
-                                    <td>
-                                        <span th:switch="${statusStat.statusName}">
-                                            <span th:case="'SUCCESS'" class="badge bg-success">Thành công</span>
-                                            <span th:case="'CANCELED'" class="badge bg-secondary">Khách đã hủy</span>
-                                            <span th:case="'REJECTED'" class="badge bg-danger">Đã từ chối</span>
-                                            <span th:case="*" class="badge bg-info" th:text="${statusStat.statusName}">Đang xử lý</span>
-                                        </span>
-                                    </td>
-                                    <td th:text="${statusStat.count}">480</td>
-                                    <td th:text="${#numbers.formatDecimal(statusStat.percentage, 1, 1) + '%'}">88.9%</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                
 
 
             </div>

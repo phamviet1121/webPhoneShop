@@ -95,7 +95,7 @@ public class StatisticalService {
         return totalOrder;
     }
 
-    // tổng số đơn hàng
+    // tổng số lượng sản phẩm 
     public int totalOrders(LocalDateTime startTime, LocalDateTime endTime)
     {
         int totalOrder=0;
@@ -126,14 +126,12 @@ public class StatisticalService {
         for (OrdersPhones order : allOrdersPhones) {
             LocalDateTime createdAt = order.getCreatedAt();
             LocalDateTime updatedAt = order.getUpdatedAt();
-            // Sô lượng Sản phẩm trong đơn hàng 
-            int quantity=order.getQuantity();
             // Điều kiện đơn hàng nằm trong khoảng thời gian
             if (createdAt == null || updatedAt == null) continue;
             boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
 
             if (isInRange && (order.getStatus() == OrdersPhones.OrderStatus.REJECTED ||order.getStatus() == OrdersPhones.OrderStatus.CANCELED)) {
-                totalOrder +=quantity;
+                totalOrder ++;
             }
         }
 
@@ -148,14 +146,12 @@ public class StatisticalService {
         for (OrdersPhones order : allOrdersPhones) {
             LocalDateTime createdAt = order.getCreatedAt();
             LocalDateTime updatedAt = order.getUpdatedAt();
-            // Sô lượng Sản phẩm trong đơn hàng 
-            int quantity=order.getQuantity();
             // Điều kiện đơn hàng nằm trong khoảng thời gian
             if (createdAt == null || updatedAt == null) continue;
             boolean isInRange = !createdAt.isBefore(startTime) && !updatedAt.isAfter(endTime);
 
             if (isInRange && order.getStatus() == OrdersPhones.OrderStatus.ORDERED) {
-                totalOrder +=quantity;
+                totalOrder ++;
             }
         }
 
@@ -704,5 +700,35 @@ public Map<String, Object> getCountVoucherUsageByUser(LocalDateTime start, Local
 
     return stats;
 }
+
+public Map<String, Object> getTotalStatistics(LocalDateTime start, LocalDateTime end) {
+    Map<String, Object> stats = new HashMap<>();
+    LocalDateTime current = start.withHour(0).withMinute(0).withSecond(0);
+    LocalDateTime finalEnd = end.withHour(23).withMinute(59).withSecond(59);
+    //tổng doanh thu 
+   double  totalRevenue = totalRevenueByDay(current,finalEnd);
+   // tổng số lượng sản phẩm đã đc bán
+    int totalOrder= totalOrders(current, finalEnd);
+   //tổng số lượng sản phẩm đã đc bán thành công 
+    int totalOrderSucces= totalOrdersSuccessByDay(current, finalEnd);
+   //tổng số lượng đơn hàng  thất bại 
+   int totalOderFailed =totalRejectedAndCanceledOrdersByDay(current, finalEnd);
+   //tổng số lương đơn hàng  chờ xác nhân
+    int totalCountOrder=countOrdersOrderedByDay(current, finalEnd);
+   // tổng số lượng voucher đã dùng 
+    int totalQuantityAllVouchersForUser = totalUsedVouchersForUser(current, finalEnd);
+
+    
+    stats.put("totalRevenue", totalRevenue); 
+    stats.put("totalOrder", totalOrder);
+    stats.put("totalOrderSucces", totalOrderSucces);  
+    stats.put("totalOderFailed", totalOderFailed); 
+    stats.put("totalCountOrder", totalCountOrder);      
+    stats.put("totalQuantityAllVouchersForUser", totalQuantityAllVouchersForUser);   
+
+    return stats;
+}
+
+
 
 }

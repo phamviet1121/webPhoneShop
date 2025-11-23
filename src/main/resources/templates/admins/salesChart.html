@@ -2,161 +2,297 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Thống kê doanh thu tuần</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống Kê Dashboard</title>
     <style>
+        /* --- CẤU TRÚC CHÍNH --- */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
-            background: #f9f9f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9; /* Màu nền tổng thể xám nhẹ dịu mắt */
         }
 
-        h2 {
-            text-align: center;
-            margin: 5px 0;
-            font-size: 18px;
+        body {
+            display: grid;
+            grid-template-rows: auto 1fr 1fr; 
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px; /* Tăng khoảng cách giữa các ô cho thoáng */
+            padding: 15px;
         }
 
-        form {
-            text-align: center;
-            margin: 5px 0;
+        /* --- HEADER --- */
+        .header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #2c3e50, #4ca1af); /* Header gradient sang trọng */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        form input, form button {
-            padding: 3px 6px;
-            font-size: 12px;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: calc(100% - 100px); 
+        .header h3 {
             margin: 0;
-            padding: 0;
+            font-size: 2.5vmin;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
+        /* Form chọn ngày */
+        .date-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2); /* Nền mờ cho form */
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .date-form input {
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            color: #333;
+        }
+
+        .date-form button {
+            padding: 6px 15px;
+            background-color: #ff9f43; /* Màu cam nổi bật trên nền tối */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .date-form button:hover {
+            background-color: #e58e26;
+            transform: scale(1.05);
+        }
+
+        /* --- CÁC Ô SECTION (CARD) --- */
+        .section {
+            background-color: white;
+            border-radius: 15px; /* Bo tròn góc nhiều hơn */
+            
+            /* Đổ bóng nhẹ lúc bình thường */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.02);
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 5px;
+            text-align: center;
+            position: relative;
+            
+            /* HIỆU ỨNG CHUYỂN ĐỘNG MƯỢT MÀ */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer; /* Con trỏ chuột thành hình bàn tay */
+        }
+
+        /* --- HIỆU ỨNG KHI DI CHUỘT VÀO (HOVER) --- */
+        .section:hover {
+            /* Nổi lên trên */
+            transform: translateY(-10px); 
+            
+            /* Bóng đổ đậm hơn và lan rộng hơn */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            
+            /* Đổi màu viền nhẹ */
+            border-color: #3498db;
+        }
+        
+        /* Hiệu ứng gradient nền nhẹ bên trong ô (tùy chọn) */
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 5px;
+            background: #e0e0e0; /* Thanh màu trang trí trên đầu mỗi thẻ */
+        }
+        /* Gán màu riêng cho thanh trang trí từng ô */
+        .section:nth-child(2)::before { background: #3498db; } /* Doanh thu - Xanh */
+        .section:nth-child(3)::before { background: #9b59b6; } /* Tổng đơn - Tím */
+        .section:nth-child(4)::before { background: #2ecc71; } /* Thành công - Xanh lá */
+        .section:nth-child(5)::before { background: #e74c3c; } /* Thất bại - Đỏ */
+        .section:nth-child(6)::before { background: #f39c12; } /* Chờ xác nhận - Cam */
+        .section:nth-child(7)::before { background: #34495e; } /* Voucher - Xám xanh */
+
+
+        .content-wrap {
+            width: 100%;
+            font-size: 2vmin;
+            z-index: 1; /* Để nằm trên các lớp trang trí */
+        }
+
+        .section h2 {
+            margin: 0 0 1vh 0;
+            color: #7f8c8d;
+            font-weight: 600;
+            font-size: 3.5vmin; /* Chữ tiêu đề vừa phải */
+            text-transform: uppercase; /* Chữ in hoa tiêu đề */
+            letter-spacing: 0.5px;
+        }
+
+        .section .number {
+            font-weight: 800;
+            color: #2c3e50;
+            font-size: 5vmin; 
+            word-break: break-word;
+            line-height: 1.2;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
+        }
+
+        /* Màu chữ số liệu */
+        .green { color: #27ae60 !important; }
+        .orange { color: #d35400 !important; }
+        .blue { color: #2980b9 !important; }
+        .red { color: #c0392b !important; }
+
+        @media (max-width: 600px) {
+            .header { flex-direction: column; gap: 10px; }
+            body { padding: 5px; gap: 5px; }
         }
     </style>
 </head>
 <body>
 
-    <h2>Thống kê doanh thu tuần</h2>
-
-    <form id="weekForm">
-        Từ: <input type="date" id="startDate" name="startDate">
-        Đến: <input type="date" id="endDate" name="endDate">
-        <button type="submit">Xem</button>
-    </form>
-
-    <div class="chart-container">
-        <canvas id="revenueChart"></canvas>
+    <!-- Header chứa Form chọn ngày -->
+    <div class="header">
+        <h3>📊 Báo Cáo Tổng Hợp</h3>
+        <form id="dateForm" class="date-form">
+            <input type="date" id="startDate" required>
+            <span style="color: white; font-weight: bold;">➜</span>
+            <input type="date" id="endDate" required>
+            <button type="submit">Xem</button>
+        </form>
     </div>
 
+    <!-- Ô 1: Doanh thu -->
+    <div class="section">
+        <div class="content-wrap">
+            <h2>Doanh thu</h2>
+            <div id="totalRevenue" class="number blue">...</div>
+            <div style="font-size: 1.5vmin; color: #95a5a6; font-weight: bold;">VND</div>
+        </div>
+    </div>
+
+    <!-- Ô 2: Tổng đơn hàng -->
+    <div class="section">
+        <div class="content-wrap">
+            <h2>Tổng số lượng sản phẩm</h2>
+            <div id="totalOrder" class="number">...</div>
+        </div>
+    </div>
+
+    <!-- Ô 3: Đơn thành công -->
+    <div class="section">
+        <div class="content-wrap">
+            <h2>Số lượng sản phẩm thành công</h2>
+            <div id="totalOrderSucces" class="number green">...</div>
+        </div>
+    </div>
+
+    <!-- Ô 4: Đơn thất bại -->
+    <div class="section">
+        <div class="content-wrap">
+            <h2>Đơn thất bại</h2>
+            <div id="totalOderFailed" class="number red">...</div>
+        </div>
+    </div>
+
+    <!-- Ô 5: Chờ xác nhận -->
+    <div class="section">
+        <div class="content-wrap">
+            <h2>Đơn chờ xác nhận</h2>
+            <div id="totalCountOrder" class="number orange">...</div>
+        </div>
+    </div>
+
+    <!-- Ô 6: Voucher đã dùng -->
+    <div class="section">
+        <div class="content-wrap">
+            <h2>Voucher đã dùng</h2>
+            <div id="totalQuantityAllVouchersForUser" class="number blue">...</div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT GIỮ NGUYÊN -->
     <script>
-        const ctx = document.getElementById('revenueChart').getContext('2d');
-        let chart;
-
-        // Default date: tuần hiện tại
-        const today = new Date();
-        const lastWeek = new Date();
-        lastWeek.setDate(today.getDate() - 6);
-        document.getElementById('startDate').value = lastWeek.toISOString().split('T')[0];
-        document.getElementById('endDate').value = today.toISOString().split('T')[0];
-
-        function fetchWeeklyStats(start, end) {
-            let url = '/phones/api/statistics/weekly';
-            if(start && end) {
-                url += `?startDate=${start}&endDate=${end}`;
-            }
-
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    if(chart) chart.destroy();
-
-                    chart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: data.labels,
-                            datasets: [
-                                {
-                                    label: 'Tổng doanh thu',
-                                    data: data.revenueByDay,
-                                    borderColor: 'rgba(75, 192, 192, 1)',
-                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                    fill: true,
-                                    tension: 0.4,
-                                    pointRadius: 4
-                                },
-                                {
-                                    label: 'Đơn hàng thành công',
-                                    data: data.ordersSuccess,
-                                    borderColor: 'rgba(54, 162, 235, 1)',
-                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                    fill: true,
-                                    tension: 0.4,
-                                    pointRadius: 4
-                                },
-                                {
-                                    label: 'Đơn hàng bị hủy',
-                                    data: data.ordersRejected,
-                                    borderColor: 'rgba(255, 99, 132, 1)',
-                                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                    fill: true,
-                                    tension: 0.4,
-                                    pointRadius: 4
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: { display: true, position: 'top' },
-                                tooltip: {
-                                    mode: 'index',
-                                    intersect: false,
-                                    callbacks: {
-                                        label: function(context) {
-                                            if(context.dataset.label === 'Tổng doanh thu'){
-                                                return context.dataset.label + ': ' +
-                                                       context.raw.toLocaleString('vi-VN', {
-                                                           style: 'currency',
-                                                           currency: 'VND'
-                                                       });
-                                            } else {
-                                                return context.dataset.label + ': ' + context.raw;
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: { title: { display: true, text: 'Ngày trong tuần' } },
-                                y: { title: { display: true, text: 'Giá trị' }, beginAtZero: true }
-                            }
-                        }
-                    });
-                });
+        function formatDateLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
-        // Form submit
-        document.getElementById('weekForm').addEventListener('submit', function(e){
+        const formatCurrency = (value) => {
+            if (value === undefined || value === null) return "0";
+            return new Intl.NumberFormat('vi-VN').format(value);
+        };
+
+        async function loadData(startStr, endStr) {
+            try {
+                let url = '/phones/api/statistics/totalStatistics';
+                if (startStr && endStr) {
+                    url += `?startDate=${startStr}&endDate=${endStr}`;
+                }
+
+                const numbers = document.querySelectorAll('.number');
+                numbers.forEach(el => el.style.opacity = '0.3'); // Hiệu ứng loading mờ đi
+
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Lỗi kết nối');
+                const data = await response.json();
+
+                document.getElementById('totalRevenue').innerText = formatCurrency(data.totalRevenue);
+                document.getElementById('totalOrder').innerText = formatCurrency(data.totalOrder);
+                document.getElementById('totalOrderSucces').innerText = formatCurrency(data.totalOrderSucces);
+                document.getElementById('totalOderFailed').innerText = formatCurrency(data.totalOderFailed);
+                document.getElementById('totalCountOrder').innerText = formatCurrency(data.totalCountOrder);
+                document.getElementById('totalQuantityAllVouchersForUser').innerText = formatCurrency(data.totalQuantityAllVouchersForUser);
+
+                numbers.forEach(el => el.style.opacity = '1'); // Hiện rõ lại
+
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert("Không thể tải dữ liệu!");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date();
+
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            const startStr = formatDateLocal(firstDayOfMonth);
+            const endStr = formatDateLocal(today);
+
+            document.getElementById('startDate').value = startStr;
+            document.getElementById('endDate').value = endStr;
+
+            loadData(startStr, endStr);
+        });
+
+        document.getElementById('dateForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
-            fetchWeeklyStats(start, end);
+            if(start && end) loadData(start, end);
         });
-
-        // Load mặc định tuần hiện tại
-        fetchWeeklyStats(document.getElementById('startDate').value, document.getElementById('endDate').value);
     </script>
-
 </body>
 </html>

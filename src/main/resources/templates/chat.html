@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ Phone Shop</title>
+    <style>
+        /* CSS CHO CHATBOT WIDGET */
+        :root {
+            --primary-color: #4a90e2; /* Màu chủ đạo (Xanh dương hiện đại) */
+            --chat-bg: #ffffff;
+            --user-msg-bg: #4a90e2;
+            --user-msg-text: #ffffff;
+            --bot-msg-bg: #f1f2f6;
+            --bot-msg-text: #333333;
+        }
+
+        /* 1. Nút tròn nổi (Floating Button) */
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
+        .chat-widget-btn:hover {
+            transform: scale(1.1);
+        }
+        .chat-widget-btn svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        /* 2. Khung Chat (Ban đầu ẩn đi) */
+        .chat-container {
+            position: fixed;
+            bottom: 90px; /* Nằm trên nút tròn */
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: var(--chat-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.15);
+            display: none; /* Mặc định ẩn */
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9999;
+            animation: slideIn 0.3s ease forwards;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Hiệu ứng trồi lên */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 3. Header của khung chat */
+        .chat-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+        .chat-header .close-btn {
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* 4. Vùng nội dung tin nhắn */
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fff;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        /* Tin nhắn của Bot */
+        .message.bot {
+            background-color: var(--bot-msg-bg);
+            color: var(--bot-msg-text);
+            border-bottom-left-radius: 2px;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+
+        /* Tin nhắn của Người dùng */
+        .message.user {
+            background-color: var(--user-msg-bg);
+            color: var(--user-msg-text);
+            border-bottom-right-radius: 2px;
+            align-self: flex-end;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        /* Hiệu ứng loading (3 chấm) */
+        .typing-indicator {
+            display: none;
+            font-style: italic;
+            color: #888;
+            font-size: 12px;
+            margin: 5px 0 10px 10px;
+        }
+
+        /* 5. Vùng nhập liệu (Input) */
+        .chat-input-area {
+            padding: 10px;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            background: #fff;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            margin-right: 10px;
+        }
+        .chat-input-area input:focus {
+            border-color: var(--primary-color);
+        }
+        .chat-input-area button {
+            background: var(--primary-color);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-input-area button:hover {
+            opacity: 0.9;
+        }
+
+        /* CSS cho trang demo nền (Không quan trọng) */
+        body { background-color: #f0f2f5; font-family: sans-serif; }
+        .dummy-content { text-align: center; padding-top: 100px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <!-- Nội dung giả lập của trang web -->
+    <div class="dummy-content">
+        <h1>Trang Web Bán Điện Thoại Của Bạn</h1>
+        <p>Thử bấm vào nút chat ở góc phải dưới nhé!</p>
+    </div>
+
+    <!-- ======================================= -->
+    <!-- BẮT ĐẦU PHẦN CHAT WIDGET (Copy từ đây) -->
+    <!-- ======================================= -->
+
+    <!-- 1. Nút tròn mở Chat -->
+    <div class="chat-widget-btn" id="chatToggle" onclick="toggleChat()">
+        <!-- Icon tin nhắn (SVG) -->
+        <svg viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+        </svg>
+    </div>
+
+    <!-- 2. Khung Chat -->
+    <div class="chat-container" id="chatContainer">
+        <!-- Header -->
+        <div class="chat-header">
+            <span>🤖 Trợ lý Phone Shop</span>
+            <span class="close-btn" onclick="toggleChat()">×</span>
+        </div>
+
+        <!-- Nội dung tin nhắn -->
+        <div class="chat-messages" id="chatBox">
+            <div class="message bot">
+                Xin chào! 👋 Em là trợ lý ảo AI. Em có thể giúp gì cho anh/chị về điện thoại hôm nay ạ?
+            </div>
+        </div>
+        
+        <!-- Loading indicator -->
+        <div id="loading" class="typing-indicator">Bot đang soạn tin...</div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <input type="text" id="userInput" placeholder="Nhập câu hỏi (Ví dụ: iPhone 15 giá bao nhiêu?)...">
+            <button onclick="sendMessage()">
+                <!-- Icon gửi (SVG) -->
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="white">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- 3. Script xử lý -->
+    <script>
+        const chatContainer = document.getElementById('chatContainer');
+        const chatToggle = document.getElementById('chatToggle');
+        const userInput = document.getElementById('userInput');
+        const chatBox = document.getElementById('chatBox');
+        const loading = document.getElementById('loading');
+
+        // Hàm bật/tắt khung chat
+        function toggleChat() {
+            if (chatContainer.style.display === 'none' || chatContainer.style.display === '') {
+                chatContainer.style.display = 'flex';
+                chatToggle.style.display = 'none'; // Ẩn nút tròn đi khi mở box
+                userInput.focus(); // Tự động focus vào ô nhập
+            } else {
+                chatContainer.style.display = 'none';
+                chatToggle.style.display = 'flex'; // Hiện lại nút tròn
+            }
+        }
+
+        // Xử lý sự kiện click ra ngoài để đóng chat
+        document.addEventListener('click', function(event) {
+            const isClickInside = chatContainer.contains(event.target);
+            const isClickButton = chatToggle.contains(event.target);
+
+            // Nếu khung chat đang mở VÀ click không nằm trong khung chat VÀ không nằm trong nút toggle
+            if (chatContainer.style.display === 'flex' && !isClickInside && !isClickButton) {
+                toggleChat();
+            }
+        });
+
+        // Hàm gửi tin nhắn (Logic giữ nguyên, chỉ thay đổi giao diện)
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // 1. Hiển thị tin nhắn người dùng
+            appendMessage(message, 'user');
+            userInput.value = '';
+            
+            // Hiện loading
+            loading.style.display = 'block';
+            scrollToBottom();
+
+            try {
+                // 2. Gọi API Spring Boot (Backend của bạn)
+                const response = await fetch('http://localhost:8080/api/chat/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: message
+                });
+
+                // Nếu Backend lỗi hoặc trả về không đúng
+                if (!response.ok) throw new Error("Lỗi Server");
+
+                const botReply = await response.text();
+
+                // 3. Hiển thị tin nhắn Bot
+                appendMessage(botReply, 'bot');
+
+            } catch (error) {
+                appendMessage("Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau.", 'bot');
+                console.error(error);
+            } finally {
+                loading.style.display = 'none';
+                scrollToBottom();
+            }
+        }
+
+        // Hàm phụ: Thêm tin nhắn vào khung
+        function appendMessage(text, sender) {
+            const div = document.createElement('div');
+            div.classList.add('message', sender);
+            
+            // Xử lý xuống dòng cho đẹp nếu bot trả về nhiều dòng
+            div.innerHTML = text.replace(/\n/g, '<br>'); 
+            
+            chatBox.appendChild(div);
+            scrollToBottom();
+        }
+
+        // Hàm phụ: Cuộn xuống cuối
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Cho phép ấn Enter để gửi
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+</html>

@@ -60,6 +60,17 @@
             </form>
         </li>
     </th:block>
+    <th:block th:fragment="contact">
+        <!-- Mục 1: Nút Quay lại -->
+        <li>
+            <a href="javascript:void(0)" 
+            onclick="if (document.referrer) { window.history.back(); } else { window.location.href='/phones/index_User'; }">
+            Quay lại
+            </a>
+        </li>
+
+     
+    </th:block>
 
 </body>
 </html>

@@ -939,5 +939,13 @@ public class PhoneController {
         }
         return "admins/salesChart";
     }
+    @GetMapping("/contact")
+    public String contact() {
+        return "fragments/contact";
+    }
+    @GetMapping("/chatbot")
+    public String trangChat() {
+        return "chat"; 
+    }
 
 }

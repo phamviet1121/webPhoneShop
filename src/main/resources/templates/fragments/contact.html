@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liên hệ - Cửa hàng điện thoại</title>
-    <!-- Nhúng Bootstrap CSS để chia cột đẹp -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .contact-page { padding: 60px 0; }
@@ -15,15 +14,16 @@
         .map-container { margin-top: 50px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .btn-submit { background-color: #0d6efd; color: white; padding: 10px 30px; font-weight: bold; border: none; }
         .btn-submit:hover { background-color: #0b5ed7; }
+        
+        /* Thêm hiệu ứng mờ dần cho alert nếu muốn mượt hơn */
+        .alert { transition: opacity 0.5s linear; }
     </style>
-    <!-- Link icon FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
  <div th:replace="~{fragments/header :: header(showLoginButton=false, extraNavItems=~{bits/nav-items :: contact})}"></div>
 <section class="contact-page">
     <div class="container">
-        <!-- Tiêu đề -->
         <div class="row mb-5 text-center">
             <div class="col-12">
                 <h1 class="fw-bold">LIÊN HỆ VỚI CHÚNG TÔI</h1>
@@ -31,8 +31,23 @@
             </div>
         </div>
 
+        <!-- HIỂN THỊ THÔNG BÁO THÀNH CÔNG / THẤT BẠI -->
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <!-- Thêm id="successAlert" để dễ xử lý JS nếu cần, nhưng class .alert là đủ -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-check-circle me-2"></i> <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-exclamation-triangle me-2"></i> <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-4">
-            <!-- Cột Thông Tin (Trái) -->
+            <!-- Cột Thông Tin -->
             <div class="col-md-5">
                 <div class="contact-info-box">
                     <h3>Thông tin liên hệ</h3>
@@ -83,31 +98,41 @@
             <div class="col-md-7">
                 <div class="p-3">
                     <h3 class="mb-4">Gửi tin nhắn cho chúng tôi</h3>
-                    <form>
+                    
+                    <form th:action="@{/phones/send}" th:object="${contactMessage}" method="post">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Họ và tên *</label>
-                                <input type="text" class="form-control" placeholder="Nhập tên của bạn">
+                                <input type="text" class="form-control" th:field="*{fullName}" placeholder="Nhập tên của bạn" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Số điện thoại *</label>
-                                <input type="tel" class="form-control" placeholder="Nhập SĐT">
+                                <input type="tel" class="form-control" th:field="*{phone}" placeholder="Nhập SĐT" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-control" th:field="*{email}" placeholder="Nhập Email" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Vấn đề quan tâm</label>
-                            <select class="form-select">
-                                <option>Chọn vấn đề...</option>
-                                <option>Góp ý/Tư vấn </option>
-                                <option>Sửa chữa/Bảo hành</option>
-                                <option>Thanh toán</option>
-                                <option>Lỗi trong quá trình trải nghiệm</option>
-                                <option>Các vấn đề khác</option>
+                            <label class="form-label">Chủ đề quan tâm</label>
+                            <select class="form-select" th:field="*{subject}">
+                                <option value="Hỏi về sản phẩm">Hỏi về sản phẩm</option>
+                                <option value="Sửa chữa/Bảo hành">Sửa chữa/Bảo hành</option>
+                                <option value="Khiếu nại">Khiếu nại</option>
+                                <option value="Góp ý">Góp ý</option>
+                                <option value="Khác">Các chủ đề khác</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Nội dung lời nhắn</label>
-                            <textarea class="form-control" rows="5" placeholder="Bạn cần tư vấn gì?"></textarea>
+                            <label class="form-label">Nội dung lời nhắn *</label>
+                            <!-- ĐÃ SỬA: Thêm thuộc tính 'required' vào thẻ textarea -->
+                            <textarea class="form-control" rows="5" th:field="*{message}" placeholder="Bạn cần tư vấn gì?" required></textarea>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập nội dung lời nhắn.
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-submit w-100">GỬI YÊU CẦU TƯ VẤN</button>
                     </form>
@@ -115,11 +140,10 @@
             </div>
         </div>
 
-        <!-- Bản đồ Google Maps -->
+        <!-- Map -->
         <div class="row">
-            <div class="col-12">
+             <div class="col-12">
                 <div class="map-container">
-                    <!-- Đây là iframe map trỏ đến 42 Triều Khúc -->
                     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.693392602232!2d105.79986767599974!3d20.98488418860078!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135acc65d2e38bd%3A0x6c04153958377234!2zNDIgUC4gVHJp4buBdSBLaMO6YywgVGhhbmggWHXDom4gTmFtLCBUaGFuaCBYdcOibiwgSMOgIE7hu5lpLCBWaWV0bmFt!5e0!3m2!1sen!2s!4v1700000000000!5m2!1sen!2s" 
                     width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
@@ -127,6 +151,25 @@
         </div>
     </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ĐÃ SỬA: Đoạn Script tự động tắt thông báo -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tìm tất cả các phần tử có class 'alert'
+        var alerts = document.querySelectorAll('.alert');
+        
+        alerts.forEach(function (alertNode) {
+            // Đặt thời gian chờ 3000ms (3 giây)
+            setTimeout(function () {
+                // Sử dụng Bootstrap API để đóng alert (tự động có hiệu ứng fade out)
+                var bsAlert = new bootstrap.Alert(alertNode);
+                bsAlert.close();
+            }, 3000);
+        });
+    });
+</script>
 
 </body>
 </html>

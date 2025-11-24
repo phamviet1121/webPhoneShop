@@ -76,6 +76,15 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        /* Class để tạo hiệu ứng bay lên */
+        .btn-hover-effect {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-hover-effect:hover {
+            transform: translateY(-4px); /* Dịch lên 4px */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Thêm bóng mờ cho đẹp */
+        }
 
         /* Tùy chỉnh màu cho các badge trạng thái */
         .badge.bg-success   { background-color: #198754 !important; }
@@ -129,7 +138,7 @@
                 <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#Voucher" type="button"><i class="fas fa-ticket me-1"></i>Voucher</button></li>
                 <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#UserVoucher" type="button"><i class="fas fa-user-tag me-1"></i>User-Voucher</button></li>
                 <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews" type="button"><i class="fas fa-star me-1"></i>Đánh Giá</button></li>
-              
+                <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contacts" type="button"><i class="fas fa-star me-1"></i>Contacts</button></li>
             </ul>
         </div>
         <div class="card-body p-4">
@@ -452,6 +461,91 @@
                                     </td>
                                     <td th:text="${uv.receivedAt != null ? #temporals.format(uv.receivedAt, 'dd/MM/yyyy') : '-'}"></td>
                                     <td th:text="${uv.usedAt != null ? #temporals.format(uv.usedAt, 'dd/MM/yyyy') : 'Chưa sử dụng'}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- TAB: Contacts -->
+                <div class="tab-pane fade" id="contacts" role="tabpanel">
+                    <!-- Sửa h2 thành h4 để đồng bộ font chữ với các tab khác -->
+                    <h4 class="mb-3">Danh sách Liên hệ Khách hàng</h4>
+
+                    <!-- Bảng dữ liệu -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Họ và Tên</th>
+                                    <th>Thông tin liên lạc</th>
+                                    <th>Chủ đề</th>
+                                    <th style="width: 30%;">Nội dung</th> <!-- Cột này rộng chút để đọc tin -->
+                                    <th>Trạng thái</th>
+                                    <th>Ngày gửi</th>
+                                    <th>Ngày cập nhật</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Kiểm tra nếu danh sách trống -->
+                                <tr th:if="${contacts.empty}">
+                                    <td colspan="8" class="text-center text-muted py-4">Không có tin nhắn liên hệ nào.</td>
+                                </tr>
+
+                                <!-- Vòng lặp duyệt danh sách -->
+                                <tr th:each="msg : ${contacts}">
+                                    <td th:text="${msg.id}">1</td>
+                                    <td th:text="${msg.fullName}">Nguyễn Văn A</td>
+                                    
+                                    <!-- Gom SĐT và Email vào 1 ô cho gọn -->
+                                    <td>
+                                        <i class="fa-solid fa-phone text-success"></i> <span th:text="${msg.phone}"></span><br>
+                                        <small class="text-muted" th:text="${msg.email}"></small>
+                                    </td>
+                                    
+                                    <td th:text="${msg.subject}">Hỏi mua hàng</td>
+                                    
+                                    <td th:text="${msg.message}">Nội dung tin nhắn...</td>
+
+                                    <!-- Xử lý hiển thị trạng thái (Số -> Chữ có màu) -->
+                                    <td>
+                                        <span th:if="${msg.status == 0}" class="badge bg-danger">Chưa xem</span>
+                                        <span th:if="${msg.status == 1}" class="badge bg-warning text-dark">Đã xem</span>
+                                        <span th:if="${msg.status == 2}" class="badge bg-success">Đã xử lý</span>
+                                    </td>
+
+                                    <!-- Format ngày giờ cho dễ đọc -->
+                                    <td th:text="${#temporals.format(msg.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td th:text="${#temporals.format(msg.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+
+                                    <td class="d-flex gap-2 align-items-center">
+    
+                                        <!-- Nút Đổi trạng thái -->
+                                        <!-- Nếu Status = 0 -> Hiện nút Đã xem -->
+                                        <a th:if="${msg.status == 0}" 
+                                            th:href="@{/phones/updateContactStatus/{id}(id=${msg.id}, status=1)}" 
+                                            class="btn btn-sm btn-primary btn-hover-effect"
+                                            style="min-width: 80px;"> <!-- min-width giúp nút không bị quá bé -->
+                                            <i class="fas fa-eye"></i> Đã xem
+                                        </a>
+
+                                        <!-- Nếu Status = 1 -> Hiện nút Đã xử lý -->
+                                        <a th:if="${msg.status == 1}" 
+                                            th:href="@{/phones/updateContactStatus/{id}(id=${msg.id}, status=2)}" 
+                                            class="btn btn-sm btn-success btn-hover-effect"
+                                            style="min-width: 80px;">
+                                            <i class="fas fa-check"></i> Đã xử lý
+                                        </a>
+
+                                        <!-- Nút Xóa -->
+                                        <a th:href="@{/phones/deleteContact/{id}(id=${msg.id})}" 
+                                            class="btn btn-sm btn-outline-danger btn-hover-effect"
+                                            style="min-width: 60px;">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </a>
+
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

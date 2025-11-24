@@ -1,11 +1,13 @@
 package com.example.phone_shop.controllers;
 
+import com.example.phone_shop.models.ContactMessage;
 // import com.example.phone_shop.models.Cart;
 import com.example.phone_shop.models.DiscountVoucher;
 import com.example.phone_shop.models.Phone;
 import com.example.phone_shop.models.Promotions;
 import com.example.phone_shop.models.Review;
 import com.example.phone_shop.services.CartService;
+import com.example.phone_shop.services.ContactService;
 import com.example.phone_shop.services.DiscountVoucherService;
 import com.example.phone_shop.services.OrdersPhonesService;
 import com.example.phone_shop.services.PhoneService;
@@ -55,11 +57,12 @@ public class PhoneController {
     private final UserVoucherService userVoucherService;
     private final CartService cartService;
     private final StatisticalService statisticalService;
+    private final ContactService contactService;
 
     // @Autowired
     public PhoneController(PhoneService phoneService, UserService userService, OrdersPhonesService ordersPhonesService,
             ReviewService reviewService, PromotionsService promotionsService, DiscountVoucherService voucherService,
-            UserVoucherService userVoucherService, CartService cartService,StatisticalService statisticalService) {
+            UserVoucherService userVoucherService, CartService cartService,StatisticalService statisticalService,ContactService contactService) {
         this.phoneService = phoneService;
         this.userService = userService;
         this.ordersPhonesService = ordersPhonesService;
@@ -69,6 +72,7 @@ public class PhoneController {
         this.userVoucherService = userVoucherService;
         this.cartService = cartService;
         this.statisticalService = statisticalService;
+        this.contactService = contactService;
 
     }
 
@@ -278,6 +282,10 @@ public class PhoneController {
 
         List<Map<String, Object>> reviewDetails = reviewService.getAllReviewsWithUserAndPhoneDetails();
         model.addAttribute("reviewDetails", reviewDetails);
+
+        List<ContactMessage> listcontact = contactService.getAllActiveContacts();
+        // Đẩy vào model để HTML dùng
+        model.addAttribute("contacts", listcontact);
 
         Integer idUser = (Integer) session.getAttribute("idUser");
         User user = (User) session.getAttribute("user");
@@ -940,9 +948,69 @@ public class PhoneController {
         return "admins/salesChart";
     }
     @GetMapping("/contact")
-    public String contact() {
+    public String contact(Model model) {
+        model.addAttribute("contactMessage", new ContactMessage());
         return "fragments/contact";
     }
+
+    @PostMapping("/send")
+    public String sendContactMessage(@ModelAttribute("contactMessage") ContactMessage contactMessage,
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            // Lưu vào DB
+            contactService.save(contactMessage);
+            
+            // Thông báo thành công (hiển thị sau khi redirect)
+            redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra, vui lòng thử lại sau!");
+        }
+
+        // Redirect lại trang contact để tránh việc user F5 lại bị gửi lặp lại (Post-Redirect-Get pattern)
+        return "redirect:/phones/contact";
+    }
+
+    @GetMapping("/deleteContact/{id}")
+    public String deleteContact(@PathVariable("id") Integer id, RedirectAttributes redirectAttributes) {
+        try {
+            // Gọi hàm xóa mềm bên Service
+            contactService.softDeleteContact(id);
+            
+            // Thông báo thành công (nếu muốn hiển thị bên view)
+            redirectAttributes.addFlashAttribute("successMessage", "Đã xóa tin nhắn thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi xóa.");
+        }
+        
+        // Quay lại trang danh sách
+        return "redirect:/phones/index_Admin";
+    }
+
+    @GetMapping("/updateContactStatus/{id}")
+    public String updateContactStatus(@PathVariable("id") Integer id, 
+                                    @RequestParam("status") Integer newStatus, 
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            // Gọi hàm updateStatus bên Service
+            contactService.updateStatus(id, newStatus);
+            
+            // Thông báo tùy theo trạng thái
+            String msg = "";
+            if(newStatus == 1) msg = "Đã chuyển sang trạng thái: Đã xem";
+            else if(newStatus == 2) msg = "Đã chuyển sang trạng thái: Đã xử lý";
+            else msg = "Đã cập nhật trạng thái";
+
+            redirectAttributes.addFlashAttribute("successMessage", msg);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi cập nhật trạng thái.");
+        }
+        
+        // Quay lại trang danh sách
+        return "redirect:/phones/index_Admin";
+    }
+
+
     @GetMapping("/chatbot")
     public String trangChat() {
         return "chat"; 

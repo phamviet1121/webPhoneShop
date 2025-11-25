@@ -29,24 +29,24 @@
             <!-- Nội dung các slide ảnh -->
             <div class="carousel-inner">
                 <!-- Slide 1 -->
-                <div class="carousel-item active">
-                    <img th:src="@{/img/22.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 1">
+                <div class="carousel-item active" style="background: black">
+                    <img th:src="@{/img/qc1.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 1">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Sản phẩm nổi bật</h5>
                         <p>Khám phá ngay các mẫu điện thoại mới nhất.</p>
                     </div>
                 </div>
                 <!-- Slide 2 -->
-                <div class="carousel-item">
-                    <img th:src="@{/img/11.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 2">
+                <div class="carousel-item" style="background: rgb(255, 255, 255)">
+                    <img th:src="@{/img/qc2.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 2">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Khuyến mãi đặc biệt</h5>
                         <p>Giảm giá cực sốc cho các dòng sản phẩm cao cấp.</p>
                     </div>
                 </div>
                 <!-- Slide 3 -->
-                <div class="carousel-item">
-                    <img th:src="@{/img/33.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 3">
+                <div class="carousel-item" style="background: black">
+                    <img th:src="@{/img/qc5.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 3">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Miễn phí vận chuyển</h5>
                         <p>Áp dụng cho mọi đơn hàng trên toàn quốc.</p>
@@ -89,13 +89,14 @@
                 <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
                 <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
                 <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                <button type="button" data-bs-target="#promoCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
             </div>
 
             <!-- Nội dung các slide ảnh -->
             <div class="carousel-inner">
                 <!-- Slide 1 -->
                 <div class="carousel-item active">
-                    <img th:src="@{/img/6.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 4">
+                    <img th:src="@{/img/qc4.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 4">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Sản phẩm nổi bật</h5>
                         <p>Khám phá ngay các mẫu điện thoại mới nhất.</p>
@@ -103,7 +104,7 @@
                 </div>
                 <!-- Slide 2 -->
                 <div class="carousel-item">
-                    <img th:src="@{/img/4.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 5">
+                    <img th:src="@{/img/qc3.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 5">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Khuyến mãi đặc biệt</h5>
                         <p>Giảm giá cực sốc cho các dòng sản phẩm cao cấp.</p>
@@ -111,10 +112,18 @@
                 </div>
                 <!-- Slide 3 -->
                 <div class="carousel-item">
-                    <img th:src="@{/img/5.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 6">
+                    <img th:src="@{/img/qc5.jpg}" class="d-block w-100" alt="Ảnh quảng cáo 6">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>Miễn phí trả góp 0%</h5>
                         <p>Áp dụng cho mọi đơn hàng trên toàn quốc.</p>
+                    </div>
+                </div>
+                <!-- Slide 4 -->
+                <div class="carousel-item">
+                    <img th:src="@{/img/qc6.png}" class="d-block w-100" alt="Ảnh quảng cáo 7">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Sản phẩm siêu hời</h5>
+                        <p>Mua ngay kẻo lỡ.</p>
                     </div>
                 </div>
             </div>
@@ -153,7 +162,7 @@
         <div class="carousel-inner">
             <!-- Slide 1 -->
             <div class="carousel-item active">
-                <img th:src="@{/img/7.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 1"style="height: 200px; object-fit: cover;">
+                <img th:src="@{/img/8.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 1"style="height: 200px; object-fit: cover;">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Sắp khuyến mãi lớn</h5>
                     <p>Chuẩn bị săn ưu đãi cực hấp dẫn trong thời gian tới.</p>
@@ -161,7 +170,7 @@
             </div>
             <!-- Slide 2 -->
             <div class="carousel-item">
-                <img th:src="@{/img/8.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 2"style="height: 200px; object-fit: cover;">
+                <img th:src="@{/img/7.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 2"style="height: 200px; object-fit: cover;">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Sản phẩm hot sắp giảm giá</h5>
                     <p>Đừng bỏ lỡ cơ hội sở hữu smartphone cao cấp với giá ưu đãi.</p>
@@ -169,7 +178,7 @@
             </div>
             <!-- Slide 3 -->
             <div class="carousel-item">
-                <img th:src="@{/img/9.jpg}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 3"style="height: 200px; object-fit: cover;">
+                <img th:src="@{/img/top.gif}" class="d-block w-100" alt="Ảnh sắp khuyến mãi 3"style="height: 200px; object-fit: cover;">
                 <div class="carousel-caption d-none d-md-block">
                     <h5>Chỉ còn ít ngày nữa!</h5>
                     <p>Các chương trình ưu đãi sắp được bật mí, hãy cùng chờ đón.</p>
